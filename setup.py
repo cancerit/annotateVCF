@@ -12,8 +12,8 @@ config = {
     'python_requires': '>= 3.3',
     'setup_requires': ['pytest','pytest-cover', 'radon'],
     'install_requires': ['tzlocal'],
-    'packages': ['annotateVcf'],
-    'package_data': {'annotateVcf':['config/*.conf','config/*.tbi','config/*.tab.gz']},
+    'packages': ['annotate'],
+    'package_data': {'annotate':['config/*.conf','config/*.tbi','config/*.tab.gz']},
     'entry_points': {
         'console_scripts': ['annotateVcf=annotate.annotate_cmd:main'],
     }

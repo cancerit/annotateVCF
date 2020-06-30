@@ -20,3 +20,4 @@ htmlcov
 .idea
 .pytest_cache*
 annotateVcf.egg-info/
+farm5.sh
