@@ -41,8 +41,9 @@ class AnnotateVcf(AbstractAnnotate):
         lof_consequences = self.lof_consequences
         header_file = self.header_file			
         outdir = self.outdir
+        keepTmp = self.keepTmp
 
-        global MAGECK_CMD
+
         if outdir:
             outputPath= outdir + '/anotatevcfOut/'
             os.makedirs(outputPath, exist_ok=True)
@@ -53,9 +54,11 @@ class AnnotateVcf(AbstractAnnotate):
             log.info("input file checks PASSED, running analysis, .....")
             (file_name, ext)=SM.get_file_metadata(vcf)
             with SM.tempdir(outputPath) as base_dir:
-                logging.info(base_dir)
+                logging.info(base_dir) 
                 outfile_name=base_dir+'/'+file_name
                 final_output=outputPath+file_name
+                if keepTmp:
+                  outfile_name = outputPath + file_name
                 # create list of lof genes...
                 with open(drv_genes) as f:
                     lof_gene_list = f.read().splitlines()
@@ -66,8 +69,8 @@ class AnnotateVcf(AbstractAnnotate):
                 drv_mut_vcf = SM.map_drv_mutations(filtered_vcf, drv_muts, header_file, outfile_name+'.muts'+ext)
                 SM.concat_results(drv_mut_vcf, lof_drv_gene_vcf, filtered_vcf, final_output+'.drv'+ext)
                 logging.info("analysis completed successfully")
-                logging.info(base_dir)
-                
+                logging.info("temporary files will be removed iflag keepTmp is not set")
+
         else:
             sys.exit('Input data is not in required format OR input file does not exists, see inputFormat in README file')
 

@@ -15,6 +15,7 @@ class AbstractAnnotate(ABC):
         self.lof_consequences = kwargs.get('lof_consequences')
         self.header_file = kwargs.get('header_file')
         self.outdir = kwargs.get('outdir')
+        self.keepTmp = kwargs.get('keepTmp')
         super().__init__()
 
     @abstractmethod

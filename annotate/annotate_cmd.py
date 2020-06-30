@@ -54,6 +54,8 @@ def main():
     optional.add_argument("-o", "--outdir", type=str, dest="outdir",
                           default=None, help="path to output directory")
 
+    optional.add_argument("-tmp", "--keepTmp", action="store_true", dest="keepTmp",
+                          default=False, help="set option to keep tmporary files")
 
     optional.add_argument("-v", "--version", action='version', version='%(prog)s ' + version)
     optional.add_argument("-q", "--quiet", action="store_false", dest="verbose", required=False, default=True)
