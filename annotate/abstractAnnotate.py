@@ -8,7 +8,6 @@ class AbstractAnnotate(ABC):
     '''
 
     def __init__(self, **kwargs):
-        print(kwargs)
         self.vcf_file = kwargs['vcf_file']
         self.drv_muts = kwargs['driver_mutations']
         self.drv_genes = kwargs.get('driver_genes')

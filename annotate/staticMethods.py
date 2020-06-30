@@ -1,19 +1,24 @@
 import sys
 import os
-import tarfile
-import json
 import io
 import tempfile
 from subprocess import Popen, PIPE, STDOUT
 import logging
 import pkg_resources
+import shutil
+
+from contextlib import contextmanager
 
 log = logging.getLogger(__name__)
 
 FILTER_VARS='bcftools view -f PASS {} | bgzip -c >{} && tabix -f -p vcf {}'
 
-MAP_GENES='bcftools annotate -a {} -i \'INFO/VC="stop_lost" || INFO/VC="start_lost" ' \
-             '|| INFO/VC="ess_splice" || INFO/VC="nonsense" || INFO/VC="frameshift" \' -h {} -c CHROM,FROM,TO,INFO/DRV {} >{}'
+#MAP_GENES='bcftools annotate -a {} -i \'INFO/VC="stop_lost" || INFO/VC="start_lost" ' \
+#             '|| INFO/VC="ess_splice" || INFO/VC="nonsense" || INFO/VC="frameshift" \' -h {} -c CHROM,FROM,TO,INFO/DRV {} >{}'
+
+MAP_GENES='bcftools annotate -a {} -i \' {} \' -h {} -c CHROM,FROM,TO,INFO/DRV {} >{}'
+
+
 
 MAP_MUTATIONS='bcftools annotate -a {} -h {} -c CHROM,FROM,TO,INFO/DRV  {}|' \
                  'bcftools annotate  -i \'INFO/DRV==INFO/VC  && INFO/DRV!="."\' | bgzip -c >{} && tabix -f -p vcf {}'
@@ -34,7 +39,6 @@ class StaticMthods(object):
         """
         try:
             if os.path.exists(infile):
-                log.info(("input file exists", infile))
                 return 'y'
             else:
                 return None
@@ -44,6 +48,15 @@ class StaticMthods(object):
             sys.exit('Error in reading input file{}:{}'.format(ioe.args[0], infile))
 
     # ------------------------------Analysis methods---------------------------------
+    @staticmethod
+    def format_consequences(lof_con):
+        effect_type = []
+        with open(lof_con) as fh_con:
+            for effect in fh_con.readlines():
+              effect_type.append("INFO/VC=\""+effect.strip()+"\"")
+            info_vc_prm=' || '.join(effect_type)
+        return info_vc_prm
+
     @staticmethod
     def get_file_metadata(full_file_name):
         """
@@ -71,7 +84,7 @@ class StaticMthods(object):
         return outfile_name
     
     @staticmethod
-    def map_drv_genes(filtered_vcf, genome_loc, header_file, outfile_name):
+    def map_drv_genes(filtered_vcf, info_vcf_prm, genome_loc, header_file, outfile_name):
         """
         :param filtered_vcf:  read filtered vcf file
         :param filename: oufile name wiyhout extension
@@ -82,7 +95,7 @@ class StaticMthods(object):
         :return:
         """
         global MAP_GENES
-        cmd=MAP_GENES.format(genome_loc, header_file, filtered_vcf, outfile_name)
+        cmd=MAP_GENES.format(genome_loc, info_vcf_prm, header_file, filtered_vcf, outfile_name)
         StaticMthods.run_command(cmd)
         return outfile_name
 
@@ -156,7 +169,7 @@ class StaticMthods(object):
             cmd_obj = Popen(cmd, stdin=None, stdout=PIPE, stderr=PIPE,
                             shell=True, universal_newlines=True, bufsize=-1,
                             close_fds=True, executable='/bin/bash')
-            logging.info("running command:{}".format(cmd))
+            #logging.info("running command:{}".format(cmd))
             (out, error) = cmd_obj.communicate()
             exit_code = cmd_obj.returncode
             if (exit_code == 0):
@@ -170,3 +183,13 @@ class StaticMthods(object):
             sys.exit("Unable to run command:{} Error:{}".format(cmd, oe.args[0]))
 
 
+    @contextmanager
+    def tempdir(mypath):
+        path = tempfile.mkdtemp(dir=mypath)
+        try:
+            yield path
+        finally:
+            try:
+                shutil.rmtree(path)
+            except IOError:
+                sys.stderr.write('Failed to clean up temp dir {}'.format(path))
