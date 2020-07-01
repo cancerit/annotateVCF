@@ -12,13 +12,8 @@ from contextlib import contextmanager
 log = logging.getLogger(__name__)
 
 FILTER_VARS='bcftools view -f PASS {} | bgzip -c >{} && tabix -f -p vcf {}'
-
-#MAP_GENES='bcftools annotate -a {} -i \'INFO/VC="stop_lost" || INFO/VC="start_lost" ' \
-#             '|| INFO/VC="ess_splice" || INFO/VC="nonsense" || INFO/VC="frameshift" \' -h {} -c CHROM,FROM,TO,INFO/DRV {} >{}'
-
+  
 MAP_GENES='bcftools annotate -a {} -i \' {} \' -h {} -c CHROM,FROM,TO,INFO/DRV {} >{}'
-
-
 
 MAP_MUTATIONS='bcftools annotate -a {} -h {} -c CHROM,FROM,TO,INFO/DRV  {}|' \
                  'bcftools annotate  -i \'INFO/DRV==INFO/VC  && INFO/DRV!="."\' | bgzip -c >{} && tabix -f -p vcf {}'

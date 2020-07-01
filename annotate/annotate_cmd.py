@@ -9,9 +9,9 @@ import logging.config
 configdir = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'config/')
 header_info = configdir + 'vcf_info.txt'
 log_config = configdir + 'logging.conf'
-genome_tab = configdir + 'genome.tab.gz'
-drv_gene = configdir + 'driver_genes.txt'
-drv_mut = configdir + 'driver_mutations.tsv.gz'
+genome_tab = configdir + 'genome_grch38.tab.gz'
+drv_gene = configdir + 'lof_genes_v1.0.txt'
+drv_mut = configdir + 'driver_mutations_grch38_v1.0.tsv.gz'
 lof_consq = configdir + 'lof_consequences.txt'
 logging.config.fileConfig(log_config)
 log = logging.getLogger(__name__)
