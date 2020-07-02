@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set -e
-MYPACKAGE=pyCRISPRcleanR
+MYPACKAGE=annotate
 pytest \
  --cov-report term \
  --cov-report html \

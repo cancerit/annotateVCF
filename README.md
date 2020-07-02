@@ -24,7 +24,7 @@ This project hosts scripts to annotate VCF files using user defined driver genes
 <!-- /TOC -->
 
 ## Design
-Uses bcftools and tabix from htslib
+Uses [bcftools] and tabix from htslib
 
 ## Tools
 
@@ -37,18 +37,18 @@ Various exceptions can occur for malformed input files.
 
 ### inputFormat
 
- * ```VCF file```  snp or indel vcf file annoated using [VAGrENT]
- * ```Driver annotation and reference files``` please refer the files in annotate/config folder
- * ```lof_genes.txt``` list of known loss of function [LoF] genes
- * ```driver_mutations_grch38.tsv.gz``` tab separated driver mutations along with effect type
+ * ```VCF file```  snp or indel vcf file annotated using [VAGrENT]
+ * ```drvData.json``` file containg paths to driver annotation data (read from deafult location annotate/config):
+ * ```annotate/config/drvData``` folder containing driver annotation reference files as listed below
+ * ```lof_genes_v1.0.txt``` list of known loss of function [LoF] genes
+ * ```lof_genes_previous_symbo_v1.0.txt``` list of known loss of function [LoF] genes referred by different previous gene symbols ( to make sure all gene synonyms were mathced with input vcf)
+ * ```driver_mutations_grch38_v1.0.tsv.gz``` tab separated driver mutations along with consequence type
  * ```genome_grch38.tab.gz``` tab separated chromosme lenght file created from genome index file
- * ```lof_consequences.txt``` consequence types to be considerd under LoF category
- * ```vcf_info.txt``` vcf header and INFO tag
+ * ```vcf_info.txt``` vcf header INFO line
 
 ### outputFormat
 
- * ```input.drv.vcf.gz ``` output vcf file with DRV info tag 
-
+ * ```<input>.drv.vcf.gz ``` output vcf file with DRV info tag and consequence type if known 
 
 ## INSTALL
 Installing via `pip install`. Simply execute with the path to the compiled 'whl' found on the [release page][annotateVcf-releases]:
@@ -131,6 +131,7 @@ pip install --find-links=~/wheels annotateVcf
 
 ### Reference
 <!--refs-->
+ [bcftools]: http://samtools.github.io/bcftools/bcftools.html 
  [VAGrENT]: https://github.com/cancerit/VAGrENT 
  [travis-master-badge]: https://travis-ci.org/cancerit/annotateVcf.svg?branch=master
  [travis-develop-badge]: https://travis-ci.org/cancerit/annotateVcf.svg?branch=develop

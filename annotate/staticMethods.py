@@ -1,6 +1,7 @@
 import sys
 import os
 import io
+import json
 import tempfile
 from subprocess import Popen, PIPE, STDOUT
 import logging
@@ -20,7 +21,7 @@ MAP_MUTATIONS='bcftools annotate -a {} -h {} -c CHROM,FROM,TO,INFO/DRV  {}|' \
 
 BGZIP_TABIX='cat {} | bgzip -c >{} && tabix -f -p vcf {}'
 
-CONCAT_VCF='bcftools concat -a --rm-dups all {} {} {} | bgzip -c >{} && tabix -f -p vcf {}'
+CONCAT_VCF='bcftools concat --allow-overlaps --rm-dups all {} {} {} | bcftools sort | bgzip -c >{} && tabix -f -p vcf {}'
 
 class StaticMthods(object):
     """ Static methosds for common tasks """
@@ -44,14 +45,81 @@ class StaticMthods(object):
 
     # ------------------------------Analysis methods---------------------------------
     @staticmethod
+    def prepare_ref_data(json_file, ref_dir):
+         try:
+            if json_file is None:
+              sys.exit('Driver reference json configuration file must be provided')
+            with open(json_file, 'r') as cfgfile:
+              cfg = json.load(cfgfile)
+              path_dict=StaticMthods._format_dir_input(ref_dir)
+              if path_dict[cfg['drv_genes']]:
+                  drv_genes=path_dict[cfg['drv_genes']]
+              else:
+                  sys.exit('paramater not found {}'.format(cfg['drv_genes']))
+              if path_dict[cfg['drv_genes_prev']]:
+                  prev_genes=path_dict[cfg['drv_genes_prev']]
+              else:
+                  sys.exit('paramater not found {}'.format(cfg['drv_genes_prev']))
+              if path_dict[cfg['drv_mut']]:
+                  drv_mut=path_dict[cfg['drv_mut']]
+              else:
+                  sys.exit('paramater not found {}'.format(cfg['drv_mut']))
+              if path_dict[cfg['header_info']]:
+                  header_info=path_dict[cfg['header_info']]
+              else:
+                  sys.exit('paramater not found {}'.format(cfg['header_info']))
+              if path_dict[cfg['genome_loc']]:
+                  genome_loc=path_dict[cfg['genome_loc']]
+              else:
+                  sys.exit('paramater not found {}'.format(cfg['genome_loc']))
+              if cfg['lof_consequences']:
+                  lof_consequences = cfg['lof_consequences']
+              else:
+                  sys.exit('paramater not found {}'.format(cfg['lof_consequences']))
+                  
+         except json.JSONDecodeError as jde:
+            sys.exit('json error:{}'.format(jde.args[0]))
+         except FileNotFoundError as fne:
+            sys.exit('Can not find json file:{}'.format(fne.args[0]))
+         print("{}\n{}\n{}\n{}\n{}\n{}\n".format(drv_genes, prev_genes, drv_mut, header_info, genome_loc, lof_consequences))
+         return (drv_genes, prev_genes, drv_mut, header_info, genome_loc, lof_consequences)
+
+    @staticmethod
+    def get_drv_gene_list(drv_genes):
+        with open(drv_genes) as f_drv:
+              lof_gene_list = f_drv.read().splitlines()
+        return lof_gene_list 
+
+    @staticmethod
+    def get_drv_prev_gene_dict(drv_genes_prev):
+        prev_gene_dict={}
+        with open(drv_genes_prev) as f_prev:
+          for line in f_prev:
+              (key,val) = line.split("\t")
+              prev_gene_dict[key]=val.strip()
+        return prev_gene_dict      
+
+    @staticmethod
     def format_consequences(lof_con):
         effect_type = []
-        with open(lof_con) as fh_con:
-            for effect in fh_con.readlines():
-              effect_type.append("INFO/VC=\""+effect.strip()+"\"")
-            info_vc_prm=' || '.join(effect_type)
-        return info_vc_prm
+        for effect in lof_con:
+          effect_type.append("INFO/VC=\""+effect+"\"")
+        return ' || '.join(effect_type)
 
+    @staticmethod                                              
+    def _format_dir_input(file_path):                          
+        """                                                    
+          creates a diretory object of key = file name and     
+          values = [file paths, name, extension, size]         
+        """                                                    
+        path_dict = {}                                         
+        for dirpath, _, files in os.walk(file_path):           
+            for filename in files:                             
+                fullpath = os.path.join(dirpath, filename)     
+                (_, name) = os.path.split(fullpath)
+                path_dict[name]=fullpath      
+        return path_dict                                 
+      
     @staticmethod
     def get_file_metadata(full_file_name):
         """
@@ -95,10 +163,11 @@ class StaticMthods(object):
         return outfile_name
 
     @staticmethod
-    def filter_lof_genes(drv_gene_vcf, lof_gene_list, out_filename):
+    def filter_lof_genes(drv_gene_vcf, lof_gene_list, prev_gene_dict, out_filename):
         """
         :param drv_gene_vcf:
         :param drv_genes:
+        :param prev_gene_dict:
         :param out_filename:
         :return:
         """
@@ -112,6 +181,8 @@ class StaticMthods(object):
                     gene = (line.split(';VD=')[1]).split('|')[0]
                     # write matching LoF genes....
                     if gene in lof_gene_list:
+                        fh.write(line)
+                    elif prev_gene_dict.get(gene,None):
                         fh.write(line)
         fh.close()
         compressed_output= out_filename + '.gz'
@@ -168,7 +239,7 @@ class StaticMthods(object):
             (out, error) = cmd_obj.communicate()
             exit_code = cmd_obj.returncode
             if (exit_code == 0):
-                logging.info("bcftools run successfully")
+                logging.info("Command run successfully:\n{}\n".format(cmd))
             else:
                 logging.debug("Error: bcftools exited with non zero exit status, please check log file more details")
                 logging.error("OUT:{}:Error:{}:Exit:{}".format(out, error, exit_code))
@@ -187,4 +258,4 @@ class StaticMthods(object):
             try:
                 shutil.rmtree(path)
             except IOError:
-                sys.stderr.write('Failed to clean up temp dir {}'.format(path))
+                sys.stderr.writie('Failed to clean up temp dir {}'.format(path))

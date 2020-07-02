@@ -1,5 +1,0 @@
-stop_lost
-start_lost
-ess_splice
-nonsense
-frameshift
