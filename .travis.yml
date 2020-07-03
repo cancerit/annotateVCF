@@ -17,17 +17,17 @@ addons:
     - unzip # kentools/pcap
     - libcairo2-dev # give png.h for kentsrc and used by R in later components
     - time
+    - bcftools
+    - tabix
     - curl
 
 before_install: # installs bcftools and tabix
     - sudo apt-get update
     - sudo apt-get install -y bcftools
     - sudo apt-get install -y tabix
+    - sudo apt-get install pyhton3.7
 
 language: python
-
-python: 
-    - "3.7.2"
 
 install:
   - pip install -r requirements.txt
