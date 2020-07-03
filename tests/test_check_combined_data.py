@@ -3,6 +3,7 @@ import annotate.staticMethods as sm
 import pytest
 import os, tempfile
 import filecmp
+import time
 
 '''
 written test to check codebase integrity
@@ -35,7 +36,7 @@ class TestClass():
         os.makedirs(outputPath, exist_ok=True)
         file_name='input'
         ext='.vcf.gz'
-        outfile_name = outputPath + file_name
+        outfile_name = outputPath + '/' + file_name
 
         exp_drv_gene_list=['APC', 'B2M']                                           
         exp_drv_gene_prev_dict={'ATD': 'ATM', 'ATC': 'ATM', 'ATDC': 'ATM', 'ATA': 'ATM'}
@@ -59,12 +60,37 @@ class TestClass():
 
         obs_drv_gene_prev_dict = so.get_drv_prev_gene_dict(drv_genes_prev) 
         assert exp_drv_gene_prev_dict == obs_drv_gene_prev_dict, 'get_drv_prev_gene_dict OK'
+
         obs_pass_vcf = so.get_filtered_vcf(vcf_file, outfile_name+'.pass'+ext)
-        (obs_vcf,exp_vcf)=so.test_compare_vcf(obs_pass_vcf,pass_vcf,outputPath+'/test_pass')
+        obs_vcf=so.unheader_vcf(obs_pass_vcf,outputPath+'/obs_pass.vcf')
+        exp_vcf=so.unheader_vcf(pass_vcf,outputPath+'/exp_pass.vcf')
         assert filecmp.cmp(exp_vcf, obs_vcf,
-                           shallow=True), 'passe records in vcf files are identical'
+                           shallow=True), 'pass records in vcf files are identical OK'
         
-       
+        obs_drv_gene_vcf = so.map_drv_genes(pass_vcf, exp_consequences, 
+                                             genome_loc, header_file, outfile_name+'.genes.vcf')
+        obs_lof_vcf = so.filter_lof_genes(obs_drv_gene_vcf,exp_drv_gene_list,
+                                          exp_drv_gene_prev_dict,outfile_name + '.genes.lof.vcf')
+        obs_lof_vcf_sub = so.unheader_vcf(obs_lof_vcf, outputPath+'/obs_genes.lof.vcf') 
+        exp_lof_vcf_sub = so.unheader_vcf(genes_lof_vcf, outputPath+'/obs_genes.lof.vcf') 
+        assert filecmp.cmp(exp_lof_vcf_sub, obs_lof_vcf_sub,
+                           shallow=True), 'lof records in vcf files are identical OK'
+        
+        obs_muts_vcf = so.map_drv_mutations(pass_vcf, drv_muts, header_file, 
+                                            outfile_name + '.muts' + ext)
+        obs_muts_vcf_sub = so.unheader_vcf(obs_muts_vcf, outputPath+'/obs_muts.vcf')
+        exp_muts_vcf_sub = so.unheader_vcf(muts_vcf, outputPath+'/exp_muts.vcf')
+        assert filecmp.cmp(exp_muts_vcf_sub, obs_muts_vcf_sub,
+                           shallow=True), 'Mutation records in vcf files are identical OK'
+        
+        obs_drv_vcf = outfile_name + '.drv' + ext
+        so.concat_results(muts_vcf, genes_lof_vcf,
+                                         pass_vcf, obs_drv_vcf)
+        obs_drv_vcf_sub = so.unheader_vcf(obs_drv_vcf, outputPath + '/obs_drv.vcf')
+        exp_drv_vcf_sub = so.unheader_vcf(drv_vcf, outputPath+'/exp_drv.vcf')
+        assert filecmp.cmp(exp_drv_vcf_sub, obs_drv_vcf_sub,
+                            shallow=True), 'Final driver records in vcf files are identical OK'
+  
 
 if __name__ == '__main__':
     mytests = TestClass()

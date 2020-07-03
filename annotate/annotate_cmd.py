@@ -16,6 +16,7 @@ log = logging.getLogger(__name__)
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 version = pkg_resources.require("annotateVcf")[0].version
 
+
 def main():
     usage = "\n %prog [options] -vcf input.vcf -drv drver.json "
 
@@ -51,8 +52,9 @@ def main():
         sys.exit('\nERROR Arguments required\n\tPlease run: annotateVcf --help\n')
     print("Annotating VCF files")
     # vars function returns __dict__ of Namespace instance
-    annotater=AnnotateVcf(**vars(opts))
+    annotater = AnnotateVcf(**vars(opts))
     annotater.run_analysis()
+
+
 if __name__ == '__main__':
     main()
-

@@ -1,0 +1,98 @@
+##fileformat=VCFv4.1
+##FILTER=<ID=PASS,Description="All filters passed">
+##FILTER=<ID=DTH,Description="Less than 1/3 mutant alleles were >= 25 base quality">
+##FILTER=<ID=RP,Description="Coverage was less than 8 and no mutant alleles were found in the first 2/3 of a read (shifted 0.08 from the start and extended 0.08 more than 2/3 of the read length)">
+##FILTER=<ID=MN,Description="More than 0.05 of mutant alleles that were >= 15 base quality found in the matched normal">
+##FILTER=<ID=PT,Description="Mutant alleles all on one direction of read (1rd allowed on opposite strand) and in second half of the read. Second half of read contains the motif GGC[AT]G in sequenced orientation and the mean base quality of all bases after the motif was less than 20">
+##FILTER=<ID=MQ,Description="Mean mapping quality of the mutant allele reads was < 21">
+##FILTER=<ID=SR,Description="Position falls within a simple repeat using the supplied bed file">
+##FILTER=<ID=CR,Description="Position falls within a centromeric repeat using the supplied bed file">
+##FILTER=<ID=PH,Description="Mutant reads were on one strand (permitted proportion on other strand: 0.04), and mean mutant base quality was less than 21">
+##FILTER=<ID=HSD,Description="Position falls within a high sequencing depth region using the supplied bed file">
+##FILTER=<ID=GI,Description="Position falls within a germline indel using the supplied bed file">
+##FILTER=<ID=VUM,Description="Position has >= 3 mutant allele present in at least 1 percent unmatched normal samples in the unmatched VCF.">
+##FILTER=<ID=SE,Description="Coverage is >= 10 on each strand but mutant allele is only present on one strand">
+##FILTER=<ID=MNP,Description="Tumour sample mutant allele proportion - normal sample mutant allele proportion < 0.2">
+##FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">
+##FORMAT=<ID=FAZ,Number=1,Type=Integer,Description="Reads presenting a A for this position, forward strand">
+##FORMAT=<ID=FCZ,Number=1,Type=Integer,Description="Reads presenting a C for this position, forward strand">
+##FORMAT=<ID=FGZ,Number=1,Type=Integer,Description="Reads presenting a G for this position, forward strand">
+##FORMAT=<ID=FTZ,Number=1,Type=Integer,Description="Reads presenting a T for this position, forward strand">
+##FORMAT=<ID=RAZ,Number=1,Type=Integer,Description="Reads presenting a A for this position, reverse strand">
+##FORMAT=<ID=RCZ,Number=1,Type=Integer,Description="Reads presenting a C for this position, reverse strand">
+##FORMAT=<ID=RGZ,Number=1,Type=Integer,Description="Reads presenting a G for this position, reverse strand">
+##FORMAT=<ID=RTZ,Number=1,Type=Integer,Description="Reads presenting a T for this position, reverse strand">
+##FORMAT=<ID=PM,Number=1,Type=Float,Description="Proportion of mut allele">
+##INFO=<ID=DP,Number=1,Type=Integer,Description="Total Depth">
+##INFO=<ID=MP,Number=1,Type=Float,Description="Sum of CaVEMan somatic genotype probabilities">
+##INFO=<ID=GP,Number=1,Type=Float,Description="Sum of CaVEMan germline genotype probabilities">
+##INFO=<ID=TG,Number=1,Type=String,Description="Most probable genotype as called by CaVEMan">
+##INFO=<ID=TP,Number=1,Type=Float,Description="Probability of most probable genotype as called by CaVEMan">
+##INFO=<ID=SG,Number=1,Type=String,Description="2nd most probable genotype as called by CaVEMan">
+##INFO=<ID=SP,Number=1,Type=Float,Description="Probability of 2nd most probable genotype as called by CaVEMan">
+##INFO=<ID=DS,Number=.,Type=String,Description="DBSnp ID of known SNP">
+##INFO=<ID=SNP,Number=0,Type=Flag,Description="Position matches a dbSNP entry using the supplied bed file">
+##INFO=<ID=ASRD,Number=1,Type=Float,Description="A soft flag median (read length adjusted) alignment score of reads showing the variant allele">
+##INFO=<ID=CLPM,Number=1,Type=Float,Description="A soft flag median number of soft clipped bases in variant supporting reads">
+##INFO=<ID=ASMD,Number=1,Type=Float,Description="A soft flag median alignement score of reads showing the variant allele">
+##INFO=<ID=VD,Number=1,Type=String,Description="Vagrent Default Annotation">
+##INFO=<ID=VW,Number=1,Type=String,Description="Vagrent Most Deleterious Annotation">
+##INFO=<ID=VT,Number=1,Type=String,Description="Variant type based on the Vagrent Default Annotation">
+##INFO=<ID=VC,Number=.,Type=String,Description="Variant consequence based on the Vagrent Default Annotation">
+##SAMPLE=<ID=NORMAL,Description="Normal",Accession=.,Platform=ILLUMINA,Protocol=WGS,SampleName=WTSI-COLO_005_b,Source=.>
+##SAMPLE=<ID=TUMOUR,Description="Tumour",Accession=.,Platform=ILLUMINA,Protocol=WGS,SampleName=WTSI-COLO_005_1pre,Source=.>
+##cavemanVersion=1.13.14
+##cgpAnalysisProc_20190930.1=5346618
+##contig=<ID=chr1,assembly=NCBI38,length=248956422,species=Human>
+##contig=<ID=chr2,assembly=NCBI38,length=242193529,species=Human>
+##contig=<ID=chr3,assembly=NCBI38,length=198295559,species=Human>
+##contig=<ID=chr4,assembly=NCBI38,length=190214555,species=Human>
+##contig=<ID=chr5,assembly=NCBI38,length=181538259,species=Human>
+##contig=<ID=chr6,assembly=NCBI38,length=170805979,species=Human>
+##contig=<ID=chr7,assembly=NCBI38,length=159345973,species=Human>
+##contig=<ID=chr8,assembly=NCBI38,length=145138636,species=Human>
+##contig=<ID=chr9,assembly=NCBI38,length=138394717,species=Human>
+##contig=<ID=chr10,assembly=NCBI38,length=133797422,species=Human>
+##contig=<ID=chr11,assembly=NCBI38,length=135086622,species=Human>
+##contig=<ID=chr12,assembly=NCBI38,length=133275309,species=Human>
+##contig=<ID=chr13,assembly=NCBI38,length=114364328,species=Human>
+##contig=<ID=chr14,assembly=NCBI38,length=107043718,species=Human>
+##contig=<ID=chr15,assembly=NCBI38,length=101991189,species=Human>
+##contig=<ID=chr16,assembly=NCBI38,length=90338345,species=Human>
+##contig=<ID=chr17,assembly=NCBI38,length=83257441,species=Human>
+##contig=<ID=chr18,assembly=NCBI38,length=80373285,species=Human>
+##contig=<ID=chr19,assembly=NCBI38,length=58617616,species=Human>
+##contig=<ID=chr20,assembly=NCBI38,length=64444167,species=Human>
+##contig=<ID=chr21,assembly=NCBI38,length=46709983,species=Human>
+##contig=<ID=chr22,assembly=NCBI38,length=50818468,species=Human>
+##contig=<ID=chrX,assembly=NCBI38,length=156040895,species=Human>
+##contig=<ID=chrY,assembly=NCBI38,length=57227415,species=Human>
+##contig=<ID=chrM,assembly=NCBI38,length=16569,species=Human>
+##fileDate=20190924
+##reference=/lustre/scratch119/casm/team78pipelines/canpipe/live/data/analysis/2126_2577635/CaVEMan/genome.fa
+##source_20190930.1=AnnotateVcf.pl
+##vcfProcessLog=<InputVCF=<.>,InputVCFSource=<CaVEMan>,InputVCFParam=<REF_BIAS=0.95,PRIOR_MUT_RATE=6e-06,NORMAL_CONTAMINATION=0.032013,MUT_CUTOFF=0.8,PRIOR_SNP_RATE=0.0001,SNP_CUTOFF=0.95>>
+##vcfProcessLog_20190930.1=<InputVCF=<split.vcf.1>,InputVCFSource=<FlagCaVEManVCF.pl>,InputVCFVer=<1.8.8>,InputVCFParam=<umv=unmatched_v5,loud=.,l=2000,b=flagging,sa=.,f=split.vcf.1,c=flag.vcf.config.ini,n=2543786.bam,s=HUMAN,h=.,ref=genome.fa.fai,p=5346618,m=2577635.bam,t=WGS,idx=.,ab=.,sp=.,g=2577635.germline.bed.gz,o=flagged_split.vcf.1,v=flag.to.vcf.convert.ini>>
+##vcfProcessLog_20190930.2=<InputVCF=<>,InputVCFSource=<AnnotateVcf.pl>,InputVCFVer=<3.5.0>,InputVCFParam=<cache=/lustre/scratch119/casm/team78pipelines/canpipe/live/ref/human/GRCh38_full_analysis_set_plus_decoy_hla/vagrent/e91/vagrent.cache.gz,output=/lustre/scratch119/casm/team78pipelines/canpipe/live/data/analysis/2126_2577635/Vagrent_CaVEMan/WTSI-COLO_005_1pre.vcf,species=Human,input=/lustre/scratch119/casm/team78pipelines/canpipe/live/data/stage/2126_2577635/2577635.caveman_c.flag.vcf.gz,tabix=1,assembly=NCBI38>>
+##bcftools_viewVersion=1.9+htslib-1.9
+##bcftools_viewCommand=view -f PASS tests/test_input_vcf/input.vcf.gz; Date=Thu Jul  2 21:13:04 2020
+##INFO=<ID=DRV,Number=1,Type=String,Description="Driver Variant Class">
+##bcftools_annotateVersion=1.9+htslib-1.9
+##bcftools_annotateCommand=annotate -a /lustre/scratch119/realdata/mdt1/team215/sb43/git_tools/annotatevcf/tests/test_drvData/genome_grch38.tab.gz -i ' INFO/VC="stop_lost" || INFO/VC="start_lost" || INFO/VC="ess_splice" || INFO/VC="frameshift" || INFO/VC="nonsense" ' -h /lustre/scratch119/realdata/mdt1/team215/sb43/git_tools/annotatevcf/tests/test_drvData/vcf_info.txt -c CHROM,FROM,TO,INFO/DRV /lustre/scratch119/realdata/mdt1/team215/sb43/git_tools/annotatevcf/tests/test_output/input.pass.vcf.gz; Date=Fri Jul  3 14:20:02 2020
+#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO	FORMAT	NORMAL	TUMOUR
+chr1	161193208	77c913be-df72-11e9-aae8-d600ec72acc9	C	A	.	PASS	DP=63;MP=1;GP=1.8e-07;TG=CC/AACCC;TP=0.89;SG=CC/AAACC;SP=0.091;ASRD=0.97;CLPM=0;ASMD=146;VT=Sub;VD=ADAMTS4|CCDS1223.1|r.2340+5g>u|c.1911+5G>T|p.?|protein_coding:CDS:extended_cis_splice_site:substitution:splice_site_variant:transcript_variant|SO:0000010:SO:0000316:SO:0001993:SO:1000002:SO:0001629:SO:0001576;VC=ess_splice;VW=ADAMTS4|CCDS1223.1|r.2340+5g>u|c.1911+5G>T|p.?|protein_coding:CDS:extended_cis_splice_site:substitution:splice_site_variant:transcript_variant|SO:0000010:SO:0000316:SO:0001993:SO:1000002:SO:0001629:SO:0001576;DRV=LoF	GT:FAZ:FCZ:FGZ:FTZ:RAZ:RCZ:RGZ:RTZ:PM	0|0:0:12:0:0:0:15:0:0:0	0|1:9:12:0:0:5:9:1:0:0.39
+chr1	219210652	77cc542a-df72-11e9-aae8-d600ec72acc9	G	A	.	PASS	DP=91;MP=1;GP=3e-13;TG=GG/AAAAG;TP=0.64;SG=GG/AAAGG;SP=0.36;ASRD=0.92;CLPM=0;ASMD=139.5;VT=Sub;VD=LYPLAL1|CCDS1522.1|r.524+5g>a|c.477+5G>A|p.?|protein_coding:CDS:extended_cis_splice_site:substitution:splice_site_variant:transcript_variant|SO:0000010:SO:0000316:SO:0001993:SO:1000002:SO:0001629:SO:0001576;VC=ess_splice;VW=LYPLAL1|CCDS1522.1|r.524+5g>a|c.477+5G>A|p.?|protein_coding:CDS:extended_cis_splice_site:substitution:splice_site_variant:transcript_variant|SO:0000010:SO:0000316:SO:0001993:SO:1000002:SO:0001629:SO:0001576;DRV=LoF	GT:FAZ:FCZ:FGZ:FTZ:RAZ:RCZ:RGZ:RTZ:PM	0|0:0:0:26:0:0:0:21:0:0	0|1:17:1:7:0:13:0:6:0:0.68
+chr1	247934046	77ce1eae-df72-11e9-aae8-d600ec72acc9	C	A	.	PASS	DP=76;MP=1;GP=1.5e-13;TG=CC/AACCC;TP=0.7;SG=CC/ACCCC;SP=0.28;ASRD=0.97;CLPM=0;ASMD=146;VT=Sub;VD=OR2AJ1|ENST00000318244|r.580c>a|c.278C>A|p.S93*|protein_coding:exon:CDS:substitution:codon_variant:stop_gained|SO:0000010:SO:0000147:SO:0000316:SO:1000002:SO:0001581:SO:0001587;VC=nonsense;VW=OR2AJ1|ENST00000318244|r.580c>a|c.278C>A|p.S93*|protein_coding:exon:CDS:substitution:codon_variant:stop_gained|SO:0000010:SO:0000147:SO:0000316:SO:1000002:SO:0001581:SO:0001587;DRV=LoF	GT:FAZ:FCZ:FGZ:FTZ:RAZ:RCZ:RGZ:RTZ:PM	0|0:0:22:0:0:0:26:0:0:0	0|1:2:9:0:0:7:10:0:0:0.32
+chr10	113160663	77deb084-df72-11e9-aae8-d600ec72acc9	C	T	.	PASS	DP=72;MP=1;GP=1.1e-09;TG=CC/CCTTT;TP=0.54;SG=CC/CCCTT;SP=0.46;ASRD=0.97;CLPM=0;ASMD=146;VT=Sub;VD=TCF7L2|CCDS53577.1|r.1713c>u|c.1363C>T|p.R455*|protein_coding:exon:CDS:substitution:codon_variant:stop_gained|SO:0000010:SO:0000147:SO:0000316:SO:1000002:SO:0001581:SO:0001587;VC=nonsense;VW=TCF7L2|CCDS53577.1|r.1713c>u|c.1363C>T|p.R455*|protein_coding:exon:CDS:substitution:codon_variant:stop_gained|SO:0000010:SO:0000147:SO:0000316:SO:1000002:SO:0001581:SO:0001587;DRV=LoF	GT:FAZ:FCZ:FGZ:FTZ:RAZ:RCZ:RGZ:RTZ:PM	0|0:0:17:0:0:1:17:0:0:0	0|1:0:13:0:8:0:6:0:10:0.49
+chr13	43888891	780b9c20-df72-11e9-aae8-d600ec72acc9	G	T	.	PASS	DP=89;MP=1;GP=1.9e-12;TG=GG/GGGGT;TP=1;SG=GG/GGGTT;SP=0.0017;ASRD=0.93;CLPM=0;ASMD=141;VT=Sub;VD=LACC1|CCDS9391.1|r.1527g>u|c.1042G>T|p.E348*|protein_coding:exon:CDS:substitution:codon_variant:stop_gained|SO:0000010:SO:0000147:SO:0000316:SO:1000002:SO:0001581:SO:0001587;VC=nonsense;VW=LACC1|CCDS9391.1|r.1527g>u|c.1042G>T|p.E348*|protein_coding:exon:CDS:substitution:codon_variant:stop_gained|SO:0000010:SO:0000147:SO:0000316:SO:1000002:SO:0001581:SO:0001587;DRV=LoF	GT:FAZ:FCZ:FGZ:FTZ:RAZ:RCZ:RGZ:RTZ:PM	0|0:0:0:23:0:0:0:21:0:0	0|1:0:0:22:3:0:0:17:3:0.13
+chr15	44715437	781d409c-df72-11e9-aae8-d600ec72acc9	C	T	.	PASS	DP=77;MP=1;GP=6.4e-14;TG=CC/TTTTT;TP=0.96;SG=CC/CTTTT;SP=0.036;ASRD=0.97;CLPM=0;ASMD=146;VT=Sub;VD=B2M|CCDS10113.1|r.152c>u|c.82C>T|p.Q28*|protein_coding:exon:CDS:substitution:codon_variant:stop_gained|SO:0000010:SO:0000147:SO:0000316:SO:1000002:SO:0001581:SO:0001587;VC=nonsense;VW=B2M|CCDS10113.1|r.152c>u|c.82C>T|p.Q28*|protein_coding:exon:CDS:substitution:codon_variant:stop_gained|SO:0000010:SO:0000147:SO:0000316:SO:1000002:SO:0001581:SO:0001587;DRV=LoF	GT:FAZ:FCZ:FGZ:FTZ:RAZ:RCZ:RGZ:RTZ:PM	0|0:0:33:0:0:0:16:1:0:0	1|1:0:0:0:7:0:1:0:19:0.96
+chr18	56686854	783e6100-df72-11e9-aae8-d600ec72acc9	G	T	.	PASS	DP=69;MP=1;GP=1.7e-13;TG=GG/GGTTT;TP=0.75;SG=GG/GTTTT;SP=0.13;ASRD=0.87;CLPM=0;ASMD=131;VT=Sub;VD=WDR7|CCDS11962.1|r.809-1g>u|c.598-1G>T|p.?|protein_coding:CDS:extended_cis_splice_site:substitution:splice_site_variant:transcript_variant|SO:0000010:SO:0000316:SO:0001993:SO:1000002:SO:0001629:SO:0001576;VC=ess_splice;VW=WDR7|CCDS11962.1|r.809-1g>u|c.598-1G>T|p.?|protein_coding:CDS:extended_cis_splice_site:substitution:splice_site_variant:transcript_variant|SO:0000010:SO:0000316:SO:0001993:SO:1000002:SO:0001629:SO:0001576;DRV=LoF	GT:FAZ:FCZ:FGZ:FTZ:RAZ:RCZ:RGZ:RTZ:PM	0|0:0:0:29:0:0:0:19:0:0	0|1:0:0:6:7:1:0:2:5:0.57
+chr19	45821379	784421ee-df72-11e9-aae8-d600ec72acc9	C	A	.	PASS	DP=51;MP=1;GP=2.8e-06;TG=CC/AAACC;TP=0.85;SG=CC/AAAAC;SP=0.1;ASRD=0.93;CLPM=0;ASMD=141;VT=Sub;VD=SYMPK|CCDS12676.2|r.3138+5g>u|c.2893+5G>T|p.?|protein_coding:CDS:extended_cis_splice_site:substitution:splice_site_variant:transcript_variant|SO:0000010:SO:0000316:SO:0001993:SO:1000002:SO:0001629:SO:0001576;VC=ess_splice;VW=SYMPK|CCDS12676.2|r.3138+5g>u|c.2893+5G>T|p.?|protein_coding:CDS:extended_cis_splice_site:substitution:splice_site_variant:transcript_variant|SO:0000010:SO:0000316:SO:0001993:SO:1000002:SO:0001629:SO:0001576;DRV=LoF	GT:FAZ:FCZ:FGZ:FTZ:RAZ:RCZ:RGZ:RTZ:PM	0|0:0:14:0:0:0:9:0:0:0	0|1:8:5:0:0:9:6:0:0:0.61
+chr2	1453776	78468510-df72-11e9-aae8-d600ec72acc9	C	T	.	PASS	DP=71;MP=1;GP=8.3e-12;TG=CC/CCCTT;TP=0.68;SG=CC/CCTTT;SP=0.31;ASRD=0.97;CLPM=0;ASMD=146;VT=Sub;VD=TPO|CCDS1643.1|r.656c>u|c.565C>T|p.R189*|protein_coding:exon:CDS:substitution:codon_variant:stop_gained|SO:0000010:SO:0000147:SO:0000316:SO:1000002:SO:0001581:SO:0001587;VC=nonsense;VW=TPO|CCDS1643.1|r.656c>u|c.565C>T|p.R189*|protein_coding:exon:CDS:substitution:codon_variant:stop_gained|SO:0000010:SO:0000147:SO:0000316:SO:1000002:SO:0001581:SO:0001587;DRV=LoF	GT:FAZ:FCZ:FGZ:FTZ:RAZ:RCZ:RGZ:RTZ:PM	0|0:0:25:0:0:0:17:0:0:0	0|1:0:9:0:6:0:7:0:7:0.45
+chr2	96610725	785c6560-df72-11e9-aae8-d600ec72acc9	C	T	.	PASS	DP=81;MP=0.88;GP=2.5e-09;TG=CC/CCCCT;TP=0.88;SG=CC/CCCCC;SP=0.12;ASRD=0.93;CLPM=0;ASMD=141;VT=Sub;VD=KANSL3|CCDS46361.1|r.1396+1g>a|c.1319+1G>A|p.?|protein_coding:CDS:extended_cis_splice_site:substitution:splice_site_variant:transcript_variant|SO:0000010:SO:0000316:SO:0001993:SO:1000002:SO:0001629:SO:0001576;VC=ess_splice;VW=KANSL3|CCDS46361.1|r.1396+1g>a|c.1319+1G>A|p.?|protein_coding:CDS:extended_cis_splice_site:substitution:splice_site_variant:transcript_variant|SO:0000010:SO:0000316:SO:0001993:SO:1000002:SO:0001629:SO:0001576;DRV=LoF	GT:FAZ:FCZ:FGZ:FTZ:RAZ:RCZ:RGZ:RTZ:PM	0|0:0:21:0:0:0:12:0:0:0	0|1:0:23:0:3:0:20:0:2:0.1
+chr2	165901790	78635988-df72-11e9-aae8-d600ec72acc9	G	A	.	PASS	DP=81;MP=1;GP=2.1e-12;TG=GG/AAAAG;TP=0.65;SG=GG/AAAGG;SP=0.35;ASRD=0.97;CLPM=0;ASMD=146;VT=Sub;VD=TTC21B|CCDS33315.1|r.2827c>u|c.2689C>T|p.Q897*|protein_coding:exon:CDS:substitution:codon_variant:stop_gained|SO:0000010:SO:0000147:SO:0000316:SO:1000002:SO:0001581:SO:0001587;VC=nonsense;VW=TTC21B|CCDS33315.1|r.2827c>u|c.2689C>T|p.Q897*|protein_coding:exon:CDS:substitution:codon_variant:stop_gained|SO:0000010:SO:0000147:SO:0000316:SO:1000002:SO:0001581:SO:0001587;DRV=LoF	GT:FAZ:FCZ:FGZ:FTZ:RAZ:RCZ:RGZ:RTZ:PM	0|0:0:0:22:0:0:0:22:0:0	0|1:15:0:7:0:11:0:4:0:0.7
+chr2	178775881	7864149a-df72-11e9-aae8-d600ec72acc9	C	A	.	PASS	DP=67;MP=1;GP=4.5e-10;TG=CC/AAACC;TP=0.52;SG=CC/AACCC;SP=0.48;ASRD=0.93;CLPM=0;ASMD=141;VT=Sub;VD=TTN|CCDS59435.1|r.6208g>u|c.5983G>T|p.E1995*|protein_coding:exon:CDS:substitution:codon_variant:stop_gained|SO:0000010:SO:0000147:SO:0000316:SO:1000002:SO:0001581:SO:0001587;VC=nonsense;VW=TTN|CCDS59435.1|r.6208g>u|c.5983G>T|p.E1995*|protein_coding:exon:CDS:substitution:codon_variant:stop_gained|SO:0000010:SO:0000147:SO:0000316:SO:1000002:SO:0001581:SO:0001587;DRV=LoF	GT:FAZ:FCZ:FGZ:FTZ:RAZ:RCZ:RGZ:RTZ:PM	0|0:0:18:0:0:0:18:0:0:0	0|1:10:6:0:0:5:10:0:0:0.48
+chr4	47645090	78b1b89e-df72-11e9-aae8-d600ec72acc9	T	A	.	PASS	DP=71;MP=1;GP=1.6e-09;TG=TT/ATTTT;TP=0.99;SG=TT/AATTT;SP=0.014;ASRD=0.97;CLPM=0;ASMD=146;VT=Sub;VD=CORIN|CCDS3477.1|r.1948a>u|c.1948A>T|p.K650*|protein_coding:exon:CDS:substitution:codon_variant:stop_gained|SO:0000010:SO:0000147:SO:0000316:SO:1000002:SO:0001581:SO:0001587;VC=nonsense;VW=CORIN|CCDS3477.1|r.1948a>u|c.1948A>T|p.K650*|protein_coding:exon:CDS:substitution:codon_variant:stop_gained|SO:0000010:SO:0000147:SO:0000316:SO:1000002:SO:0001581:SO:0001587;DRV=LoF	GT:FAZ:FCZ:FGZ:FTZ:RAZ:RCZ:RGZ:RTZ:PM	0|0:0:0:0:18:0:0:0:16:0	0|1:3:0:0:19:3:0:0:12:0.16
+chr5	17634694	78c6c4be-df72-11e9-aae8-d600ec72acc9	C	T	.	PASS	DP=85;MP=1;GP=2.3e-12;TG=CC/CCCCT;TP=0.61;SG=CC/CCCTT;SP=0.39;ASRD=0.97;CLPM=0;ASMD=146;VT=Sub;VD=AC233724.12|ENST00000512227|r.235c>u|c.235C>T|p.Q79*|protein_coding:exon:CDS:substitution:codon_variant:stop_gained|SO:0000010:SO:0000147:SO:0000316:SO:1000002:SO:0001581:SO:0001587;VC=nonsense;VW=AC233724.12|ENST00000512227|r.235c>u|c.235C>T|p.Q79*|protein_coding:exon:CDS:substitution:codon_variant:stop_gained|SO:0000010:SO:0000147:SO:0000316:SO:1000002:SO:0001581:SO:0001587;DRV=LoF	GT:FAZ:FCZ:FGZ:FTZ:RAZ:RCZ:RGZ:RTZ:PM	0|0:0:23:0:0:0:21:0:0:0	0|1:0:10:0:7:0:20:0:4:0.27
+chr5	112815507	78d23984-df72-11e9-aae8-d600ec72acc9	C	T	.	PASS	DP=74;MP=1;GP=3.7e-15;TG=CC/TTTTT;TP=0.87;SG=CC/CTTTT;SP=0.13;ASRD=0.97;CLPM=0;ASMD=146;VT=Sub;VD=APC|CCDS4107.1|r.903c>u|c.847C>T|p.R283*|protein_coding:exon:CDS:substitution:codon_variant:stop_gained|SO:0000010:SO:0000147:SO:0000316:SO:1000002:SO:0001581:SO:0001587;VC=nonsense;VW=APC|CCDS4107.1|r.903c>u|c.847C>T|p.R283*|protein_coding:exon:CDS:substitution:codon_variant:stop_gained|SO:0000010:SO:0000147:SO:0000316:SO:1000002:SO:0001581:SO:0001587;DRV=LoF	GT:FAZ:FCZ:FGZ:FTZ:RAZ:RCZ:RGZ:RTZ:PM	0|0:0:28:0:0:0:25:0:0:0	1|1:0:0:0:11:0:1:0:9:0.95
+chrX	135545510	7928ae68-df72-11e9-aae8-d600ec72acc9	A	T	.	PASS	DP=84;MP=1;GP=2.7e-11;TG=AA/AAAAT;TP=1;SG=AA/AAATT;SP=0.0022;ASRD=0.95;CLPM=0;ASMD=143.5;VT=Sub;VD=INTS6L|CCDS35401.1|r.611a>u|c.277A>T|p.R93*|protein_coding:exon:CDS:substitution:codon_variant:stop_gained|SO:0000010:SO:0000147:SO:0000316:SO:1000002:SO:0001581:SO:0001587;VC=nonsense;VW=INTS6L|CCDS35401.1|r.611a>u|c.277A>T|p.R93*|protein_coding:exon:CDS:substitution:codon_variant:stop_gained|SO:0000010:SO:0000147:SO:0000316:SO:1000002:SO:0001581:SO:0001587;DRV=LoF	GT:FAZ:FCZ:FGZ:FTZ:RAZ:RCZ:RGZ:RTZ:PM	0|0:18:0:0:0:22:0:0:0:0	0|1:18:0:0:3:20:0:0:3:0.14
