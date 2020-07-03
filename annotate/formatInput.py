@@ -64,7 +64,7 @@ class AnnotateVcf(AbstractAnnotate):
                 # create dict of previous gene symbol
                 prev_gene_dict=SM.get_drv_prev_gene_dict(drv_genes_prev)
                 # get passed  records from VCF file
-                filtered_vcf = SM.get_filtered_vars(self.vcf_file, outfile_name+'.pass'+ext)
+                filtered_vcf = SM.get_filtered_vcf(vcf_file, outfile_name+'.pass'+ext)
                 #get records with LoF effect ....
                 drv_gene_vcf = SM.map_drv_genes(filtered_vcf, info_vc_prm, genome_loc, header_file, outfile_name+'.genes.vcf')
                 # filter LoF records with Driver genes [ LoF and ambiguious ]

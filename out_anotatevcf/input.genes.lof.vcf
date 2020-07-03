@@ -1,0 +1,84 @@
+##fileformat=VCFv4.1
+##FILTER=<ID=PASS,Description="All filters passed">
+##FILTER=<ID=DTH,Description="Less than 1/3 mutant alleles were >= 25 base quality">
+##FILTER=<ID=RP,Description="Coverage was less than 8 and no mutant alleles were found in the first 2/3 of a read (shifted 0.08 from the start and extended 0.08 more than 2/3 of the read length)">
+##FILTER=<ID=MN,Description="More than 0.05 of mutant alleles that were >= 15 base quality found in the matched normal">
+##FILTER=<ID=PT,Description="Mutant alleles all on one direction of read (1rd allowed on opposite strand) and in second half of the read. Second half of read contains the motif GGC[AT]G in sequenced orientation and the mean base quality of all bases after the motif was less than 20">
+##FILTER=<ID=MQ,Description="Mean mapping quality of the mutant allele reads was < 21">
+##FILTER=<ID=SR,Description="Position falls within a simple repeat using the supplied bed file">
+##FILTER=<ID=CR,Description="Position falls within a centromeric repeat using the supplied bed file">
+##FILTER=<ID=PH,Description="Mutant reads were on one strand (permitted proportion on other strand: 0.04), and mean mutant base quality was less than 21">
+##FILTER=<ID=HSD,Description="Position falls within a high sequencing depth region using the supplied bed file">
+##FILTER=<ID=GI,Description="Position falls within a germline indel using the supplied bed file">
+##FILTER=<ID=VUM,Description="Position has >= 3 mutant allele present in at least 1 percent unmatched normal samples in the unmatched VCF.">
+##FILTER=<ID=SE,Description="Coverage is >= 10 on each strand but mutant allele is only present on one strand">
+##FILTER=<ID=MNP,Description="Tumour sample mutant allele proportion - normal sample mutant allele proportion < 0.2">
+##FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">
+##FORMAT=<ID=FAZ,Number=1,Type=Integer,Description="Reads presenting a A for this position, forward strand">
+##FORMAT=<ID=FCZ,Number=1,Type=Integer,Description="Reads presenting a C for this position, forward strand">
+##FORMAT=<ID=FGZ,Number=1,Type=Integer,Description="Reads presenting a G for this position, forward strand">
+##FORMAT=<ID=FTZ,Number=1,Type=Integer,Description="Reads presenting a T for this position, forward strand">
+##FORMAT=<ID=RAZ,Number=1,Type=Integer,Description="Reads presenting a A for this position, reverse strand">
+##FORMAT=<ID=RCZ,Number=1,Type=Integer,Description="Reads presenting a C for this position, reverse strand">
+##FORMAT=<ID=RGZ,Number=1,Type=Integer,Description="Reads presenting a G for this position, reverse strand">
+##FORMAT=<ID=RTZ,Number=1,Type=Integer,Description="Reads presenting a T for this position, reverse strand">
+##FORMAT=<ID=PM,Number=1,Type=Float,Description="Proportion of mut allele">
+##INFO=<ID=DP,Number=1,Type=Integer,Description="Total Depth">
+##INFO=<ID=MP,Number=1,Type=Float,Description="Sum of CaVEMan somatic genotype probabilities">
+##INFO=<ID=GP,Number=1,Type=Float,Description="Sum of CaVEMan germline genotype probabilities">
+##INFO=<ID=TG,Number=1,Type=String,Description="Most probable genotype as called by CaVEMan">
+##INFO=<ID=TP,Number=1,Type=Float,Description="Probability of most probable genotype as called by CaVEMan">
+##INFO=<ID=SG,Number=1,Type=String,Description="2nd most probable genotype as called by CaVEMan">
+##INFO=<ID=SP,Number=1,Type=Float,Description="Probability of 2nd most probable genotype as called by CaVEMan">
+##INFO=<ID=DS,Number=.,Type=String,Description="DBSnp ID of known SNP">
+##INFO=<ID=SNP,Number=0,Type=Flag,Description="Position matches a dbSNP entry using the supplied bed file">
+##INFO=<ID=ASRD,Number=1,Type=Float,Description="A soft flag median (read length adjusted) alignment score of reads showing the variant allele">
+##INFO=<ID=CLPM,Number=1,Type=Float,Description="A soft flag median number of soft clipped bases in variant supporting reads">
+##INFO=<ID=ASMD,Number=1,Type=Float,Description="A soft flag median alignement score of reads showing the variant allele">
+##INFO=<ID=VD,Number=1,Type=String,Description="Vagrent Default Annotation">
+##INFO=<ID=VW,Number=1,Type=String,Description="Vagrent Most Deleterious Annotation">
+##INFO=<ID=VT,Number=1,Type=String,Description="Variant type based on the Vagrent Default Annotation">
+##INFO=<ID=VC,Number=.,Type=String,Description="Variant consequence based on the Vagrent Default Annotation">
+##SAMPLE=<ID=NORMAL,Description="Normal",Accession=.,Platform=ILLUMINA,Protocol=WGS,SampleName=WTSI-COLO_005_b,Source=.>
+##SAMPLE=<ID=TUMOUR,Description="Tumour",Accession=.,Platform=ILLUMINA,Protocol=WGS,SampleName=WTSI-COLO_005_1pre,Source=.>
+##cavemanVersion=1.13.14
+##cgpAnalysisProc_20190930.1=5346618
+##contig=<ID=chr1,assembly=NCBI38,length=248956422,species=Human>
+##contig=<ID=chr2,assembly=NCBI38,length=242193529,species=Human>
+##contig=<ID=chr3,assembly=NCBI38,length=198295559,species=Human>
+##contig=<ID=chr4,assembly=NCBI38,length=190214555,species=Human>
+##contig=<ID=chr5,assembly=NCBI38,length=181538259,species=Human>
+##contig=<ID=chr6,assembly=NCBI38,length=170805979,species=Human>
+##contig=<ID=chr7,assembly=NCBI38,length=159345973,species=Human>
+##contig=<ID=chr8,assembly=NCBI38,length=145138636,species=Human>
+##contig=<ID=chr9,assembly=NCBI38,length=138394717,species=Human>
+##contig=<ID=chr10,assembly=NCBI38,length=133797422,species=Human>
+##contig=<ID=chr11,assembly=NCBI38,length=135086622,species=Human>
+##contig=<ID=chr12,assembly=NCBI38,length=133275309,species=Human>
+##contig=<ID=chr13,assembly=NCBI38,length=114364328,species=Human>
+##contig=<ID=chr14,assembly=NCBI38,length=107043718,species=Human>
+##contig=<ID=chr15,assembly=NCBI38,length=101991189,species=Human>
+##contig=<ID=chr16,assembly=NCBI38,length=90338345,species=Human>
+##contig=<ID=chr17,assembly=NCBI38,length=83257441,species=Human>
+##contig=<ID=chr18,assembly=NCBI38,length=80373285,species=Human>
+##contig=<ID=chr19,assembly=NCBI38,length=58617616,species=Human>
+##contig=<ID=chr20,assembly=NCBI38,length=64444167,species=Human>
+##contig=<ID=chr21,assembly=NCBI38,length=46709983,species=Human>
+##contig=<ID=chr22,assembly=NCBI38,length=50818468,species=Human>
+##contig=<ID=chrX,assembly=NCBI38,length=156040895,species=Human>
+##contig=<ID=chrY,assembly=NCBI38,length=57227415,species=Human>
+##contig=<ID=chrM,assembly=NCBI38,length=16569,species=Human>
+##fileDate=20190924
+##reference=/lustre/scratch119/casm/team78pipelines/canpipe/live/data/analysis/2126_2577635/CaVEMan/genome.fa
+##source_20190930.1=AnnotateVcf.pl
+##vcfProcessLog=<InputVCF=<.>,InputVCFSource=<CaVEMan>,InputVCFParam=<REF_BIAS=0.95,PRIOR_MUT_RATE=6e-06,NORMAL_CONTAMINATION=0.032013,MUT_CUTOFF=0.8,PRIOR_SNP_RATE=0.0001,SNP_CUTOFF=0.95>>
+##vcfProcessLog_20190930.1=<InputVCF=<split.vcf.1>,InputVCFSource=<FlagCaVEManVCF.pl>,InputVCFVer=<1.8.8>,InputVCFParam=<umv=unmatched_v5,loud=.,l=2000,b=flagging,sa=.,f=split.vcf.1,c=flag.vcf.config.ini,n=2543786.bam,s=HUMAN,h=.,ref=genome.fa.fai,p=5346618,m=2577635.bam,t=WGS,idx=.,ab=.,sp=.,g=2577635.germline.bed.gz,o=flagged_split.vcf.1,v=flag.to.vcf.convert.ini>>
+##vcfProcessLog_20190930.2=<InputVCF=<>,InputVCFSource=<AnnotateVcf.pl>,InputVCFVer=<3.5.0>,InputVCFParam=<cache=/lustre/scratch119/casm/team78pipelines/canpipe/live/ref/human/GRCh38_full_analysis_set_plus_decoy_hla/vagrent/e91/vagrent.cache.gz,output=/lustre/scratch119/casm/team78pipelines/canpipe/live/data/analysis/2126_2577635/Vagrent_CaVEMan/WTSI-COLO_005_1pre.vcf,species=Human,input=/lustre/scratch119/casm/team78pipelines/canpipe/live/data/stage/2126_2577635/2577635.caveman_c.flag.vcf.gz,tabix=1,assembly=NCBI38>>
+##bcftools_viewVersion=1.9+htslib-1.9
+##bcftools_viewCommand=view -f PASS tests/test_input_vcf/input.vcf.gz; Date=Fri Jul  3 10:17:10 2020
+##INFO=<ID=DRV,Number=1,Type=String,Description="Driver Variant Class">
+##bcftools_annotateVersion=1.9+htslib-1.9
+##bcftools_annotateCommand=annotate -a tests/test_drvData/genome_grch38.tab.gz -i ' INFO/VC="stop_lost" || INFO/VC="start_lost" || INFO/VC="ess_splice" || INFO/VC="frameshift" || INFO/VC="nonsense" ' -h tests/test_drvData/vcf_info.txt -c CHROM,FROM,TO,INFO/DRV .//out_anotatevcf/input.pass.vcf.gz; Date=Fri Jul  3 10:17:11 2020
+#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO	FORMAT	NORMAL	TUMOUR
+chr15	44715437	781d409c-df72-11e9-aae8-d600ec72acc9	C	T	.	PASS	DP=77;MP=1;GP=6.4e-14;TG=CC/TTTTT;TP=0.96;SG=CC/CTTTT;SP=0.036;ASRD=0.97;CLPM=0;ASMD=146;VT=Sub;VD=B2M|CCDS10113.1|r.152c>u|c.82C>T|p.Q28*|protein_coding:exon:CDS:substitution:codon_variant:stop_gained|SO:0000010:SO:0000147:SO:0000316:SO:1000002:SO:0001581:SO:0001587;VC=nonsense;VW=B2M|CCDS10113.1|r.152c>u|c.82C>T|p.Q28*|protein_coding:exon:CDS:substitution:codon_variant:stop_gained|SO:0000010:SO:0000147:SO:0000316:SO:1000002:SO:0001581:SO:0001587;DRV=LoF	GT:FAZ:FCZ:FGZ:FTZ:RAZ:RCZ:RGZ:RTZ:PM	0|0:0:33:0:0:0:16:1:0:0	1|1:0:0:0:7:0:1:0:19:0.96
+chr5	112815507	78d23984-df72-11e9-aae8-d600ec72acc9	C	T	.	PASS	DP=74;MP=1;GP=3.7e-15;TG=CC/TTTTT;TP=0.87;SG=CC/CTTTT;SP=0.13;ASRD=0.97;CLPM=0;ASMD=146;VT=Sub;VD=APC|CCDS4107.1|r.903c>u|c.847C>T|p.R283*|protein_coding:exon:CDS:substitution:codon_variant:stop_gained|SO:0000010:SO:0000147:SO:0000316:SO:1000002:SO:0001581:SO:0001587;VC=nonsense;VW=APC|CCDS4107.1|r.903c>u|c.847C>T|p.R283*|protein_coding:exon:CDS:substitution:codon_variant:stop_gained|SO:0000010:SO:0000147:SO:0000316:SO:1000002:SO:0001581:SO:0001587;DRV=LoF	GT:FAZ:FCZ:FGZ:FTZ:RAZ:RCZ:RGZ:RTZ:PM	0|0:0:28:0:0:0:25:0:0:0	1|1:0:0:0:11:0:1:0:9:0.95

@@ -23,6 +23,8 @@ BGZIP_TABIX='cat {} | bgzip -c >{} && tabix -f -p vcf {}'
 
 CONCAT_VCF='bcftools concat --allow-overlaps --rm-dups all {} {} {} | bcftools sort | bgzip -c >{} && tabix -f -p vcf {}'
 
+COMPARE_VCF='bcftools isec -c both -p {} {} {}'
+
 class StaticMthods(object):
     """ Static methosds for common tasks """
 
@@ -81,7 +83,7 @@ class StaticMthods(object):
             sys.exit('json error:{}'.format(jde.args[0]))
          except FileNotFoundError as fne:
             sys.exit('Can not find json file:{}'.format(fne.args[0]))
-         print("{}\n{}\n{}\n{}\n{}\n{}\n".format(drv_genes, prev_genes, drv_mut, header_info, genome_loc, lof_consequences))
+         #print("{}\n{}\n{}\n{}\n{}\n{}\n".format(drv_genes, prev_genes, drv_mut, header_info, genome_loc, lof_consequences))
          return (drv_genes, prev_genes, drv_mut, header_info, genome_loc, lof_consequences)
 
     @staticmethod
@@ -133,7 +135,7 @@ class StaticMthods(object):
         return name_no_ext2, ext
 
     @staticmethod
-    def get_filtered_vars(vcf, outfile_name):
+    def get_filtered_vcf(vcf, outfile_name):
         """
         :param vcf: input vcf file
         :param filename: filename no extension
@@ -219,6 +221,15 @@ class StaticMthods(object):
         cmd = CONCAT_VCF.format(drv_muts, lof_vcf, filtered_vcf, outfile_name, outfile_name)
         StaticMthods.run_command(cmd)
         return
+
+    @staticmethod
+    def test_compare_vcf(vcf1,vcf2,outdir):
+        # only used for testing ...
+        global COMPARE_VCF
+        cmd = COMPARE_VCF.format(vcf1,vcf2,outdir) 
+        StaticMthods.run_command(cmd)
+        return outdir+'/0002.vcf', outdir+'/0003.vcf' 
+       
 
     @staticmethod
     def run_command(cmd):
