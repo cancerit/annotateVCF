@@ -9,7 +9,7 @@ from annotate.staticMethods import StaticMthods as SM
 log = logging.getLogger(__name__)
 
 '''
-  This code run's bcftools to annoate driver gene and varinat sites
+  This code runs bcftools to annoate driver gene and variant sites
 '''
 
 
@@ -23,12 +23,7 @@ class AnnotateVcf(AbstractAnnotate):
            check input type and presence of user supplied
            input files
         """
-        super().check_input()
-        input_type = []
-
-        for infile in ([self.vcf_file]):
-            input_type.append(SM.input_checker(infile))
-        return input_type
+        return [SM.input_checker(infile) for infile in [self.vcf_file]]
 
     def run_analysis(self):
         """
@@ -42,7 +37,7 @@ class AnnotateVcf(AbstractAnnotate):
         outputPath = outdir + '/out_anotatevcf/'
         os.makedirs(outputPath, exist_ok=True)
         # check input files
-        (vcf_status) = self.check_input()
+        vcf_status = self.check_input()
 
         if vcf_status[0] == 'y':
             log.info("input file checks PASSED, running analysis, .....")
@@ -52,7 +47,7 @@ class AnnotateVcf(AbstractAnnotate):
             (drv_genes, drv_genes_prev, drv_muts, header_file,
              genome_loc, lof_consequences) = SM.prepare_ref_data(drv_json, drv_data)
             with SM.tempdir(outputPath) as base_dir:
-                logging.info(base_dir)
+                logging.info('Annotated vcf written in: {}'.format(base_dir))
                 outfile_name = base_dir + '/' + file_name
                 final_output = outputPath + file_name
                 if keepTmp:
@@ -78,7 +73,8 @@ class AnnotateVcf(AbstractAnnotate):
                 SM.concat_results(drv_mut_vcf, lof_drv_gene_vcf,
                                   filtered_vcf, final_output + '.drv' + ext)
                 logging.info("analysis completed successfully")
-                logging.info("temporary files will be removed if flag -tmp is not set")
+                if not keepTmp:
+                    logging.info("temporary files are removed since -tmp is not set by user")
 
         else:
             sys.exit('Input data is not in required format OR input file does  \

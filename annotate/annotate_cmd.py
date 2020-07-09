@@ -16,7 +16,7 @@ version = pkg_resources.require("annotateVcf")[0].version
 
 
 def main():
-    usage = "\n %prog [options] -vcf input.vcf -drv drver.json "
+    usage = "\n %prog [options] -vcf input.vcf [-drv_json test.json -drv_data test_dir] "
 
     optParser = argparse.ArgumentParser(prog='annotateVcf',
                                         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
