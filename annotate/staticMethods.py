@@ -34,59 +34,48 @@ class StaticMthods(object):
     def __init__(self):
         super().__init__()
 
+    @staticmethod
+
     def input_checker(infile):
         """
           checks user input file and returns it's type
         """
         try:
-            if os.path.exists(infile):
+            if os.path.isfile(infile):
                 return 'y'
             else:
                 return None
-        except IsADirectoryError:
-            return None
         except IOError as ioe:
             sys.exit('Error in reading input file{}:{}'.format(ioe.args[0], infile))
 
     # ------------------------------Analysis methods---------------------------------
     @staticmethod
     def prepare_ref_data(json_file, ref_dir):
+        config_param = []
         try:
             if json_file is None:
                 sys.exit('Driver reference json configuration file must be provided')
             with open(json_file, 'r') as cfgfile:
                 cfg = json.load(cfgfile)
                 path_dict = StaticMthods._format_dir_input(ref_dir)
-                if path_dict[cfg['drv_genes']]:
-                    drv_genes = path_dict[cfg['drv_genes']]
-                else:
-                    sys.exit('paramater not found {}'.format(cfg['drv_genes']))
-                if path_dict[cfg['drv_genes_prev']]:
-                    prev_genes = path_dict[cfg['drv_genes_prev']]
-                else:
-                    sys.exit('paramater not found {}'.format(cfg['drv_genes_prev']))
-                if path_dict[cfg['drv_mut']]:
-                    drv_mut = path_dict[cfg['drv_mut']]
-                else:
-                    sys.exit('paramater not found {}'.format(cfg['drv_mut']))
-                if path_dict[cfg['header_info']]:
-                    header_info = path_dict[cfg['header_info']]
-                else:
-                    sys.exit('paramater not found {}'.format(cfg['header_info']))
-                if path_dict[cfg['genome_loc']]:
-                    genome_loc = path_dict[cfg['genome_loc']]
-                else:
-                    sys.exit('paramater not found {}'.format(cfg['genome_loc']))
-                if cfg['lof_consequences']:
-                    lof_consequences = cfg['lof_consequences']
-                else:
-                    sys.exit('paramater not found {}'.format(cfg['lof_consequences']))
 
+                my_file_param = ('drv_genes', 'drv_genes_prev', 'drv_mut',
+                            'header_info', 'genome_loc')
+                for prm in my_file_param:
+                    config_param.append(StaticMthods._ge_param(path_dict, cfg[prm]))
+                config_param.append(StaticMthods._ge_param(cfg, 'lof_consequences'))
         except json.JSONDecodeError as jde:
             sys.exit('json error:{}'.format(jde.args[0]))
         except FileNotFoundError as fne:
             sys.exit('Can not find json file:{}'.format(fne.args[0]))
-        return (drv_genes, prev_genes, drv_mut, header_info, genome_loc, lof_consequences)
+        return config_param
+
+    @staticmethod
+    def _ge_param(path_dict, prm):
+        if path_dict.get(prm, None):
+            return path_dict.get(prm, None)
+        else:
+            sys.exit('paramater not found {}'.format(prm))
 
     @staticmethod
     def get_drv_gene_list(drv_genes):
@@ -140,29 +129,27 @@ class StaticMthods(object):
     def get_filtered_vcf(vcf, outfile_name):
         """
         :param vcf: input vcf file
-        :param filename: filename no extension
-        :param ext: file extension
-        :param outdir:
+
+        :param outfile_name: filename no extension
         :return: filtered var vcf outfile
         """
-        global FILTER_VARS
+
         cmd = FILTER_VARS.format(vcf, outfile_name, outfile_name)
         StaticMthods.run_command(cmd)
         return outfile_name
 
     @staticmethod
-    def map_drv_genes(filtered_vcf, info_vcf_prm, genome_loc, header_file, outfile_name):
+
+    def map_drv_genes(filtered_vcf, info_vc_prm, genome_loc, header_file, outfile_name):
         """
         :param filtered_vcf:  read filtered vcf file
-        :param filename: oufile name wiyhout extension
-        :param ext: file extension
+        :param info_vc_prm: vagrent classification paramter value
         :param genome_loc: genome location
         :param header_file: vcf custom header file
-        :param outdir: output directory
+        :param outfile_name: vcf oufile
         :return:
         """
-        global MAP_GENES
-        cmd = MAP_GENES.format(genome_loc, info_vcf_prm, header_file, filtered_vcf, outfile_name)
+        cmd = MAP_GENES.format(genome_loc, info_vc_prm, header_file, filtered_vcf, outfile_name)
         StaticMthods.run_command(cmd)
         return outfile_name
 
@@ -170,10 +157,11 @@ class StaticMthods(object):
     def filter_lof_genes(drv_gene_vcf, lof_gene_list, prev_gene_dict, out_filename):
         """
         :param drv_gene_vcf:
-        :param drv_genes:
+        :param lof_gene_list:
         :param prev_gene_dict:
         :param out_filename:
-        :return:
+        :return: vcf with lof variant locations
+
         """
         fh = open(out_filename, "w")
         with open(drv_gene_vcf) as gene_f:
@@ -204,7 +192,6 @@ class StaticMthods(object):
         :param outfile_name:
         :return:
         """
-        global MAP_MUTATIONS
         cmd = MAP_MUTATIONS.format(drv_muts, header_file, filtered_vcf, outfile_name, outfile_name)
         StaticMthods.run_command(cmd)
         return outfile_name
@@ -219,7 +206,6 @@ class StaticMthods(object):
         :param outfile_name:
         :return:
         """
-        global CONCAT_VCF
         cmd = CONCAT_VCF.format(drv_muts, lof_vcf, filtered_vcf, outfile_name, outfile_name)
         StaticMthods.run_command(cmd)
         return
@@ -227,7 +213,6 @@ class StaticMthods(object):
     @staticmethod
     def unheader_vcf(header_vcf, unheader_vcf):
         # only used for testing ...
-        global UNHEADER_VCF
         cmd = UNHEADER_VCF.format(header_vcf, unheader_vcf)
         StaticMthods.run_command(cmd)
         return unheader_vcf
@@ -253,10 +238,11 @@ class StaticMthods(object):
             if (exit_code == 0):
                 logging.info("Command run successfully:\n{}\n".format(cmd))
             else:
-                logging.debug("Error: bcftools exited with non zero exit \
-                              status, please check log file more details")
+                logging.debug("Error: command exited with non zero exit \
+                              status, please check log file for more details")
                 logging.error("OUT:{}:Error:{}:Exit:{}".format(out, error, exit_code))
-            return 0
+            return
+
         except OSError as oe:
             logging.error("Unable to run command:{} Error:{}".format(cmd, oe.args[0]))
             sys.exit("Unable to run command:{} Error:{}".format(cmd, oe.args[0]))
@@ -270,4 +256,5 @@ class StaticMthods(object):
             try:
                 shutil.rmtree(path)
             except IOError:
-                sys.stderr.writie('Failed to clean up temp dir {}'.format(path))
+                sys.stderr.write('Failed to clean up temp dir {}'.format(path))
+

@@ -10,7 +10,6 @@ written test to check codebase integrity
 of archCompare
 '''
 
-
 class TestClass():
     pass
 
@@ -38,16 +37,17 @@ class TestClass():
         ext='.vcf.gz'
         outfile_name = outputPath + '/' + file_name
 
-        exp_drv_gene_list=['APC', 'B2M']                                           
+        exp_drv_gene_list=['APC', 'B2M']
         exp_drv_gene_prev_dict={'ATD': 'ATM', 'ATC': 'ATM', 'ATDC': 'ATM', 'ATA': 'ATM'}
         # create object for static class ....
-        so = sm.StaticMthods()
+        so=sm.StaticMthods() 
 
         exp_metadata =  (file_name, ext)
         obs_metadata = so.get_file_metadata(vcf_file)
         assert exp_metadata == obs_metadata, 'get_file_metadata test OK'
 
-        exp_ref_data=(drv_genes, drv_genes_prev, drv_muts, header_file,genome_loc, lof_consequences)
+        exp_ref_data=[drv_genes, drv_genes_prev, drv_muts, header_file,genome_loc, lof_consequences]
+
         obs_ref_data = so.prepare_ref_data(driver_json,driver_data)
         assert exp_ref_data == obs_ref_data, 'prepare_ref_data test OK'
 
@@ -91,7 +91,3 @@ class TestClass():
         assert filecmp.cmp(exp_drv_vcf_sub, obs_drv_vcf_sub,
                             shallow=True), 'Final driver records in vcf files are identical OK'
   
-
-if __name__ == '__main__':
-    mytests = TestClass()
-    mytests()

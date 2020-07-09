@@ -37,7 +37,7 @@ Various exceptions can occur for malformed input files.
 
 ### inputFormat
 
- * ```VCF file```  snp or indel vcf file annotated using [VAGrENT]
+ * ```VCF file```  snv or indel vcf file annotated using [VAGrENT]
  * ```drvData.json``` file containg paths to driver annotation data (read from deafult location annotate/config):
  * ```annotate/config/drvData``` folder containing driver annotation reference files as listed below
  * ```lof_genes_v1.0.txt``` list of known loss of function [LoF] genes
@@ -61,7 +61,9 @@ Release `.whl` files are generated as part of the release process and can be fou
 
 ### Package Dependancies
 
-`pip` will install the relevant dependancies, listed here for convenience, please refer requirements.txt for versions:
+
+`pip` will install the relevant dependancies, listed here for convenience, please refer requirements.txt for versions.
+
 
 ## Development environment
 
@@ -87,6 +89,10 @@ in the base of the clone:
 
 ### Development Dependencies
 
+pytest
+radon
+pytest-cov
+
 #### Setup VirtualEnv
 
 ```
@@ -102,6 +108,7 @@ For testing/coverage (`./run_tests.sh`)
 ```
 source env/bin/activate # if not already in env
 pip install pytest
+pip install radon
 pip install pytest-cov
 ```
 

@@ -1,6 +1,6 @@
 {
-	"drv_genes":"lof_genes_v1.0.txt",
-	"drv_genes_prev":"lof_genes_previous_symbol.v1.0.txt",
+  "drv_genes":"lof_genes_v1.0.txt",
+  "drv_genes_prev":"lof_genes_previous_symbol.v1.0.txt",
   "drv_mut":"driver_mutations_test.tsv.gz",
   "lof_consequences":["stop_lost","start_lost","ess_splice","frameshift","nonsense"],
   "header_info":"vcf_info.txt",
