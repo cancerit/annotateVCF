@@ -14,6 +14,7 @@ logging.config.fileConfig(log_config)
 log = logging.getLogger(__name__)
 version = pkg_resources.require("annotateVcf")[0].version
 
+
 def main():
     usage = "\n %prog [options] -vcf input.vcf -drv drver.json "
 
