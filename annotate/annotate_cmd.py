@@ -5,7 +5,6 @@ import argparse
 import pkg_resources
 import logging.config
 
-
 # load config and reference files....
 
 configdir = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'config/')

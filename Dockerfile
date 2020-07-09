@@ -1,4 +1,3 @@
-
 FROM  ubuntu:20.04 as builder
 USER root
 
@@ -55,10 +54,8 @@ apt-get remove -yq unattended-upgrades && \
 apt-get autoremove -yq
 
 
-
 RUN locale-gen en_US.UTF-8
 RUN update-locale LANG=en_US.UTF-8
-
 
 ENV CGP_OPT /opt/wtsi-cgp
 ENV PATH $CGP_OPT/bin:$CGP_OPT/python-lib/bin:$PATH

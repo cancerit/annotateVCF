@@ -35,7 +35,6 @@ class StaticMthods(object):
         super().__init__()
 
     @staticmethod
-
     def input_checker(infile):
         """
           checks user input file and returns it's type
@@ -58,7 +57,6 @@ class StaticMthods(object):
             with open(json_file, 'r') as cfgfile:
                 cfg = json.load(cfgfile)
                 path_dict = StaticMthods._format_dir_input(ref_dir)
-
                 my_file_param = ('drv_genes', 'drv_genes_prev', 'drv_mut',
                             'header_info', 'genome_loc')
                 for prm in my_file_param:
@@ -129,7 +127,6 @@ class StaticMthods(object):
     def get_filtered_vcf(vcf, outfile_name):
         """
         :param vcf: input vcf file
-
         :param outfile_name: filename no extension
         :return: filtered var vcf outfile
         """
@@ -139,7 +136,6 @@ class StaticMthods(object):
         return outfile_name
 
     @staticmethod
-
     def map_drv_genes(filtered_vcf, info_vc_prm, genome_loc, header_file, outfile_name):
         """
         :param filtered_vcf:  read filtered vcf file
@@ -161,7 +157,6 @@ class StaticMthods(object):
         :param prev_gene_dict:
         :param out_filename:
         :return: vcf with lof variant locations
-
         """
         fh = open(out_filename, "w")
         with open(drv_gene_vcf) as gene_f:
@@ -242,7 +237,6 @@ class StaticMthods(object):
                               status, please check log file for more details")
                 logging.error("OUT:{}:Error:{}:Exit:{}".format(out, error, exit_code))
             return
-
         except OSError as oe:
             logging.error("Unable to run command:{} Error:{}".format(cmd, oe.args[0]))
             sys.exit("Unable to run command:{} Error:{}".format(cmd, oe.args[0]))
@@ -257,4 +251,3 @@ class StaticMthods(object):
                 shutil.rmtree(path)
             except IOError:
                 sys.stderr.write('Failed to clean up temp dir {}'.format(path))
-
