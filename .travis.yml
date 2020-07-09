@@ -12,4 +12,4 @@ script:
   - echo 'Build and check docker image'
   - docker build -t annotatevcf .
   - docker images | grep -c annotatevcf
-  - docker run -t --rm annotatevcf annotateVcf --help
+  - docker run -t --rm annotatevcf annotateVcf -h
