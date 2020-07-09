@@ -34,17 +34,16 @@ class StaticMthods(object):
     def __init__(self):
         super().__init__()
 
+    @staticmethod
     def input_checker(infile):
         """
           checks user input file and returns it's type
         """
         try:
-            if os.path.exists(infile):
+            if os.path.isfile(infile):
                 return 'y'
             else:
                 return None
-        except IsADirectoryError:
-            return None
         except IOError as ioe:
             sys.exit('Error in reading input file{}:{}'.format(ioe.args[0], infile))
 
@@ -145,7 +144,6 @@ class StaticMthods(object):
         :param outdir:
         :return: filtered var vcf outfile
         """
-        global FILTER_VARS
         cmd = FILTER_VARS.format(vcf, outfile_name, outfile_name)
         StaticMthods.run_command(cmd)
         return outfile_name
@@ -161,7 +159,6 @@ class StaticMthods(object):
         :param outdir: output directory
         :return:
         """
-        global MAP_GENES
         cmd = MAP_GENES.format(genome_loc, info_vcf_prm, header_file, filtered_vcf, outfile_name)
         StaticMthods.run_command(cmd)
         return outfile_name
@@ -204,7 +201,6 @@ class StaticMthods(object):
         :param outfile_name:
         :return:
         """
-        global MAP_MUTATIONS
         cmd = MAP_MUTATIONS.format(drv_muts, header_file, filtered_vcf, outfile_name, outfile_name)
         StaticMthods.run_command(cmd)
         return outfile_name
@@ -219,7 +215,6 @@ class StaticMthods(object):
         :param outfile_name:
         :return:
         """
-        global CONCAT_VCF
         cmd = CONCAT_VCF.format(drv_muts, lof_vcf, filtered_vcf, outfile_name, outfile_name)
         StaticMthods.run_command(cmd)
         return
@@ -227,7 +222,6 @@ class StaticMthods(object):
     @staticmethod
     def unheader_vcf(header_vcf, unheader_vcf):
         # only used for testing ...
-        global UNHEADER_VCF
         cmd = UNHEADER_VCF.format(header_vcf, unheader_vcf)
         StaticMthods.run_command(cmd)
         return unheader_vcf

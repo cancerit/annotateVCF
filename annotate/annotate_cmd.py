@@ -5,17 +5,14 @@ import argparse
 import pkg_resources
 import logging.config
 
-# loda config and reference files....
+# load config and reference files....
 configdir = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'config/')
 log_config = configdir + 'logging.conf'
 drv_json = configdir + 'drvData.json'
 drv_data = configdir + 'drvData'
 logging.config.fileConfig(log_config)
 log = logging.getLogger(__name__)
-
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 version = pkg_resources.require("annotateVcf")[0].version
-
 
 def main():
     usage = "\n %prog [options] -vcf input.vcf -drv drver.json "

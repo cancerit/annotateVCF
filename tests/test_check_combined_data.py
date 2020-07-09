@@ -41,8 +41,7 @@ class TestClass():
         exp_drv_gene_list=['APC', 'B2M']                                           
         exp_drv_gene_prev_dict={'ATD': 'ATM', 'ATC': 'ATM', 'ATDC': 'ATM', 'ATA': 'ATM'}
         # create object for static class ....
-        so = sm.StaticMthods()
-
+        so=sm.StaticMthods() 
         exp_metadata =  (file_name, ext)
         obs_metadata = so.get_file_metadata(vcf_file)
         assert exp_metadata == obs_metadata, 'get_file_metadata test OK'
@@ -91,7 +90,3 @@ class TestClass():
         assert filecmp.cmp(exp_drv_vcf_sub, obs_drv_vcf_sub,
                             shallow=True), 'Final driver records in vcf files are identical OK'
   
-
-if __name__ == '__main__':
-    mytests = TestClass()
-    mytests()
