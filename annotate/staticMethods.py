@@ -130,6 +130,7 @@ class StaticMthods(object):
         :param outfile_name: filename no extension
         :return: filtered var vcf outfile
         """
+
         cmd = FILTER_VARS.format(vcf, outfile_name, outfile_name)
         StaticMthods.run_command(cmd)
         return outfile_name

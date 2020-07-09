@@ -9,6 +9,8 @@ import time
 written test to check codebase integrity
 of archCompare
 '''
+
+
 class TestClass():
     pass
 
@@ -87,4 +89,3 @@ class TestClass():
         exp_drv_vcf_sub = so.unheader_vcf(drv_vcf, outputPath+'/exp_drv.vcf')
         assert filecmp.cmp(exp_drv_vcf_sub, obs_drv_vcf_sub,
                             shallow=True), 'Final driver records in vcf files are identical OK'
-  

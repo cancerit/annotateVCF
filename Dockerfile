@@ -53,6 +53,7 @@ unattended-upgrade -d -v && \
 apt-get remove -yq unattended-upgrades && \
 apt-get autoremove -yq
 
+
 RUN locale-gen en_US.UTF-8
 RUN update-locale LANG=en_US.UTF-8
 
@@ -67,6 +68,7 @@ RUN mkdir -p $CGP_OPT
 COPY --from=builder $CGP_OPT $CGP_OPT
 
 ## USER CONFIGURATION 
+
 RUN adduser --disabled-password --gecos '' ubuntu && chsh -s /bin/bash && mkdir -p /home/ubuntu
 
 USER ubuntu

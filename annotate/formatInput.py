@@ -75,7 +75,6 @@ class AnnotateVcf(AbstractAnnotate):
                 logging.info("analysis completed successfully")
                 if not keepTmp:
                     logging.info("temporary files are removed since -tmp is not set by user")
-
         else:
             sys.exit('Input data is not in required format OR input file does  \
                 not exists, see inputFormat in README file')
