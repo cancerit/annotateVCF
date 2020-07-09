@@ -1,0 +1,15 @@
+dist: trusty
+
+notifications:
+  email: false
+  slack: wtsi-cgpit:ptUMR1tkNyZJYd9TpGoss8WR
+sudo: false
+
+services:
+  - docker
+script:
+  - set -e
+  - echo 'Build and check docker image'
+  - docker build -t annotatevcf .
+  - docker images | grep -c annotatevcf
+  - docker run -t --rm annotatevcf annotateVcf -h
