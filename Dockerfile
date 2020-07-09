@@ -1,3 +1,4 @@
+
 FROM  ubuntu:20.04 as builder
 USER root
 
@@ -53,8 +54,11 @@ unattended-upgrade -d -v && \
 apt-get remove -yq unattended-upgrades && \
 apt-get autoremove -yq
 
+
+
 RUN locale-gen en_US.UTF-8
 RUN update-locale LANG=en_US.UTF-8
+
 
 ENV CGP_OPT /opt/wtsi-cgp
 ENV PATH $CGP_OPT/bin:$CGP_OPT/python-lib/bin:$PATH
@@ -67,6 +71,7 @@ RUN mkdir -p $CGP_OPT
 COPY --from=builder $CGP_OPT $CGP_OPT
 
 ## USER CONFIGURATION 
+
 RUN adduser --disabled-password --gecos '' ubuntu && chsh -s /bin/bash && mkdir -p /home/ubuntu
 
 USER ubuntu
