@@ -24,7 +24,8 @@ This project hosts scripts to annotate VCF files using user defined driver genes
 <!-- /TOC -->
 
 ## Design
-Uses [bcftools] and tabix from htslib
+
+Uses [bcftools], [tabix] and [bgzip] in user's path , these are part of [htslib] or can be installed separately
 
 ## Tools
 
@@ -58,10 +59,6 @@ pip install annotateVcf.X.X.X-py3-none-any.whl
 ```
 
 Release `.whl` files are generated as part of the release process and can be found on the [release page][annotateVcf-releases]
-
-### Package Dependancies
-
-`pip` will install the relevant dependancies, listed here for convenience, please refer requirements.txt for versions.
 
 ## Development environment
 
@@ -136,9 +133,11 @@ pip install --find-links=~/wheels annotateVcf
 
 ### Reference
 <!--refs-->
- [bcftools]: http://samtools.github.io/bcftools/bcftools.html 
+ [htslib]: https://github.com/samtools/htslib
+ [bcftools]: https://github.com/samtools/bcftools
+ [tabix]: https://github.com/samtools/tabix
  [VAGrENT]: https://github.com/cancerit/VAGrENT 
- [travis-master-badge]: https://travis-ci.org/cancerit/annotateVcf.svg?branch=master
- [travis-develop-badge]: https://travis-ci.org/cancerit/annotateVcf.svg?branch=develop
+ [travis-master-badge]: https://travis-ci.org/cancerit/annotateVCF.svg?branch=master
+ [travis-develop-badge]: https://travis-ci.org/cancerit/annotateVCF.svg?branch=develop
  [travis-repo]: https://travis-ci.org/cancerit/annotateVcf
- [annotateVcf-releases]: https://github.com/cancerit/annotateVcf/releases
+ [annotateVcf-releases]: https://github.com/cancerit/annotateVCF/releases
