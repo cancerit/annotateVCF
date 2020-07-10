@@ -12,7 +12,7 @@ config = {
     'python_requires': '>= 3.3',
     'install_requires': ['tzlocal'],
     'packages': ['annotate'],
-    'package_data': {'annotate':['config/*.conf','config/drvData/*']},
+    'package_data': {'annotate':['config/*.conf','config/*.json','config/drvData/*']},
     'entry_points': {
         'console_scripts': ['annotateVcf=annotate.annotate_cmd:main'],
     }
