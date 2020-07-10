@@ -26,8 +26,6 @@ RUN update-locale LANG=en_US.UTF-8
 ENV LC_ALL en_US.UTF-8
 ENV LANG en_US.UTF-8
 
-COPY requirements.txt $CGP_OPT/requirements.txt
-RUN pip3 --no-cache-dir install -r $CGP_OPT/requirements.txt
 # install annotatevcf
 RUN pip3 --no-cache-dir install https://github.com/cancerit/annotateVCF/releases/download/${ANNOTATEVCF_VER}/annotateVcf-${ANNOTATEVCF_VER}-py3-none-any.whl
 
