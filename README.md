@@ -59,10 +59,6 @@ pip install annotateVcf.X.X.X-py3-none-any.whl
 
 Release `.whl` files are generated as part of the release process and can be found on the [release page][annotateVcf-releases]
 
-### Package Dependancies
-
-`pip` will install the relevant dependancies, listed here for convenience, please refer requirements.txt for versions.
-
 ## Development environment
 
 This project uses git pre-commit hooks.  As these will execute on your system it
