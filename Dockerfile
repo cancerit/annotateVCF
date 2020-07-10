@@ -29,7 +29,7 @@ ENV LANG en_US.UTF-8
 # install annotatevcf
 RUN pip3 --no-cache-dir install https://github.com/cancerit/annotateVCF/releases/download/${ANNOTATEVCF_VER}/annotateVcf-${ANNOTATEVCF_VER}-py3-none-any.whl
 
-COPY ..
+COPY . .
 
 FROM ubuntu:20.04
 
