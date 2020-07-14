@@ -1,74 +1,43 @@
-FROM  ubuntu:20.04 as builder
-USER root
+FROM python:3.7-slim as builder
 
 MAINTAINER  cgphelp@sanger.ac.uk
 
-ENV ANNOTATEVCF_VER '1.0.0'
+ENV ANNOTATEVCF_VER '1.0.2'
 
 # install system tools
-RUN apt-get -yq update
-RUN apt-get install -yq --no-install-recommends \
-locales \
-g++ \
-make \
-gcc \
-pkg-config \
-python3 python3-dev python3-pip python3-setuptools python3-wheel \
-zlib1g-dev libbz2-dev liblzma-dev libcurl4-gnutls-dev \
-bcftools tabix git
 
-ENV CGP_OPT /opt/wtsi-cgp
-RUN mkdir $CGP_OPT
-ENV PYTHONPATH $CGP_OPT/python-lib/lib/python3.6/site-packages
+ENV CGP_OPT /opt/wtsi-cgp/venv
 
-RUN locale-gen en_US.UTF-8
-RUN update-locale LANG=en_US.UTF-8
-ENV LC_ALL en_US.UTF-8
-ENV LANG en_US.UTF-8
+RUN python -m venv $CGP_OPT
+# Make sure we use the virtualenv:
+ENV PATH $CGP_OPT/bin:$CGP_OPT/python-lib/bin:$PATH
+ENV PYTHONPATH $CGP_OPT/python-lib/lib/python3.7/site-packages
+RUN pip3 install --upgrade setuptools
 
-COPY requirements.txt $CGP_OPT/requirements.txt
-RUN pip3 --no-cache-dir install -r $CGP_OPT/requirements.txt
-# install annotatevcf
-RUN pip3 --no-cache-dir install https://github.com/cancerit/annotateVCF/releases/download/${ANNOTATEVCF_VER}/annotateVcf-${ANNOTATEVCF_VER}-py3-none-any.whl
+RUN pip3 install --install-option="--prefix=$CGP_OPT/python-lib" https://github.com/cancerit/annotateVCF/archive/${ANNOTATEVCF_VER}.tar.gz
 
-COPY ..
+COPY . .
 
-FROM ubuntu:20.04
+RUN python3 setup.py sdist
+RUN pip3 install --install-option="--prefix=$CGP_OPT/python-lib" dist/$(ls -1 dist/)
+
+FROM python:3.7-slim
 
 LABEL uk.ac.sanger.cgp="Cancer Genome Project, Wellcome Sanger Institute" \
-      version="1.0.0" \
+      version="$ANNOTATEVCF_VER" \
       description="Tool to perform vcf file annotation"
 
-### security upgrades and cleanup
-RUN apt-get -yq update
-RUN apt-get install -yq --no-install-recommends \
-apt-transport-https \
-locales \
-ca-certificates \
-time \
-unattended-upgrades \
-python3 \
-zlib1g-dev libbz2-dev liblzma-dev libcurl4-gnutls-dev && \
-unattended-upgrade -d -v && \
-apt-get remove -yq unattended-upgrades && \
-apt-get autoremove -yq
-
-
-RUN locale-gen en_US.UTF-8
-RUN update-locale LANG=en_US.UTF-8
-
-ENV CGP_OPT /opt/wtsi-cgp
-ENV PATH $CGP_OPT/bin:$CGP_OPT/python-lib/bin:$PATH
-ENV PYTHONPATH $CGP_OPT/python-lib/lib/python3.6/site-packages
-ENV LD_LIBRARY_PATH $OPT/lib
-ENV LC_ALL en_US.UTF-8
-ENV LANG en_US.UTF-8
-
+# Make sure we use the virtualenv:
+ENV CGP_OPT /opt/wtsi-cgp/venv
 RUN mkdir -p $CGP_OPT
 COPY --from=builder $CGP_OPT $CGP_OPT
-
+RUN apt-get -yq update
+RUN apt-get install -yq --no-install-recommends \
+    bcftools tabix
+#set PATHS 
+ENV PATH $CGP_OPT/bin:$CGP_OPT/python-lib/bin:$PATH
+ENV PYTHONPATH $CGP_OPT/python-lib/lib/python3.7/site-packages
 ## USER CONFIGURATION 
-
 RUN adduser --disabled-password --gecos '' ubuntu && chsh -s /bin/bash && mkdir -p /home/ubuntu
 
 USER ubuntu
