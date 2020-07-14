@@ -1,4 +1,10 @@
 dist: trusty
+# safelist
+branches:
+  only:
+  - master
+  - develop
+  - /^\d+\.\d+\.\d+$/
 
 notifications:
   email: false

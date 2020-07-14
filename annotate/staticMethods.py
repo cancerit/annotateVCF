@@ -40,7 +40,9 @@ class StaticMthods(object):
           checks user input file and returns it's type
         """
         try:
-            if os.path.isfile(infile):
+            if os.path.exists(infile) and os.path.islink(infile):
+                return 'y'
+            elif os.path.isfile(infile):
                 return 'y'
             else:
                 return None
