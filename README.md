@@ -139,5 +139,5 @@ pip install --find-links=~/wheels annotateVcf
  [VAGrENT]: https://github.com/cancerit/VAGrENT 
  [travis-master-badge]: https://travis-ci.org/cancerit/annotateVCF.svg?branch=master
  [travis-develop-badge]: https://travis-ci.org/cancerit/annotateVCF.svg?branch=develop
- [travis-repo]: https://travis-ci.org/cancerit/annotateVcf
+ [travis-repo]: https://travis-ci.org/cancerit/annotateVCF
  [annotateVcf-releases]: https://github.com/cancerit/annotateVCF/releases
