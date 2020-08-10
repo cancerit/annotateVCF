@@ -1,4 +1,5 @@
-import annotate.vcf_annotator as va  
+import annotate.io_formatter as formatter
+import annotate.vcf_annotator as annotator
 import sys
 import os
 import argparse
@@ -12,7 +13,6 @@ log_config = configdir + 'logging.conf'
 logging.config.fileConfig(log_config)
 log = logging.getLogger(__name__)
 version = pkg_resources.require("annotateVcf")[0].version
-
 
 def main():
 
@@ -59,17 +59,16 @@ def main():
     if not opts.vcf_file:
         sys.exit('\nERROR Arguments required\n\tPlease run: annotateVcf --help\n')
     print("Annotating VCF files")
+    
     # vars function returns __dict__ of Namespace instance
-    myinputs = va.InputFormatter(**vars(opts))
-    format_input=['vcf_file','lof_type','germline','mutations','lof_genes','outdir']
-    (vcf_meta_list, lof_type, germline_meta_dict, mut_meta_dict, gene_meta_dict, outdir_path) = myinputs.format(format_input)
-    print("{}\n{}\n{}\n{}\n{}".format(vcf_meta_list,lof_type, mut_meta_dict, gene_meta_dict, germline_meta_dict))
-    with va.tempdir(outdir_path) as base_dir:
-      drv_muts = va.AnnotateDriverMutations(vcf_meta_list, mut_meta_dict, base_dir)
-      muts_vcf=drv_muts.annotate_mutations()
-      drv_genes = va.AnnotateLofGenes(vcf_meta_list, gene_meta_dict, lof_type, base_dir)
-      gene_vcf=drv_genes.annotate_genes()
-      final_drc_out=va.concat_results(vcf_meta_list, muts_vcf, gene_vcf, outdir_path)
-      
+    my_formatter = formatter.IO_Formatter(**vars(opts))
+    outdir_path=my_formatter.format(['outdir'])
+    with formatter.tempdir(outdir_path['outdir']) as base_dir:
+      my_annotator = annotator.VcfAnnotator(my_formatter, base_dir)
+      my_annotator.tag_germline_vars()
+      #drv_vcf=my_annotator.annot_drv_muts() 
+      #lof_vcf=my_annotator.annotate_lof_genes() 
+      #annot_vcf=my_annotator.concat_results(drv_vcf,lof_vcf) 
+      #print(drv_vcf, lof_vcf, annot_vcf)
 if __name__ == '__main__':
     main()
