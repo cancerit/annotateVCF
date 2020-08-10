@@ -5,6 +5,7 @@ import re
 import io
 import json
 import tempfile
+import copy
 from subprocess import Popen, PIPE, STDOUT
 import pkg_resources
 import shutil
@@ -22,27 +23,47 @@ class VcfAnnotator:
         Main class , loads user defined parameters and files
     """
     def __init__(self, f, basedir):
-       input_data = f.format(['vcf_file'])
+       self.input_data = f.format(['vcf_file'])
        self.drv_mut = f.format(['mutations'])
        self.drv_genes = f.format(['lof_type', 'lof_genes'])
        self.np = f.format(['normal_panel'])
+       self.outdir = basedir
        #set input vcf  paramaters and tmp_oudir.... required for downnstream functions....
-       input_data = f.format(['vcf_file'])
+       self._set_input_vcf(self.input_data)
+       self.merge_vcf_dict={}
+
+       #print("input_data:{}\n drv_mut:{}\n drv_genes:{}\n germline_filter:{}\nBasedir:{}\n".format(self.input_data,self.drv_mut,self.drv_genes,self.np, basedir))
+    
+    def _set_input_vcf(self,input_data):
        self.vcf_path = input_data['vcf_file']['path']
        self.vcf_ext = input_data['vcf_file']['ext']
        self.vcf_name = input_data['vcf_file']['name']
        self.vcf_filter = input_data['vcf_file']['filter']
-       self.outdir = basedir
-       self.outfile_name = basedir+'/'+self.vcf_name+'{}'
-
-       print("input_data:{}\n drv_mut:{}\n drv_genes:{}\n germline_filter:{}\nBasedir:{}\n".format(input_data,self.drv_mut,self.drv_genes,self.np, basedir))
+       self.outfile_name = self.outdir + '/'+self.vcf_name+'{}'
+       return None
         
     def tag_germline_vars(self):
          np=self.np['normal_panel']
-         tagged_vcf = self.outfile_name.format('_np.vcf.gz') 
-         TAG_VCF='bcftools annotate -i \'{}\' -a {}  -m \'{}\'  -O z -o {} {}'
-         cmd=TAG_VCF.format(np['filter'], np['path'], np['tag'], tagged_vcf, self.vcf_path)
-         print(cmd)
+         self.tagged_vcf = self.outfile_name.format('_np.vcf.gz') 
+         self.filtered_vcf = self.outfile_name.format('_np_filtered.vcf.gz')         
+
+         TAG_GERMLINE='bcftools annotate -a {} -i \'{}\'  -m \'{}\'  {} | bgzip -c >{} && tabix -p vcf {}'
+         cmd=TAG_GERMLINE.format(np['path'], np['filter'], np['tag'], self.vcf_path, self.tagged_vcf, self.tagged_vcf)
+         _run_command(cmd)
+         
+         FILTER_GERMLINE ='bcftools  view -i \'{} && {}=0\' {} | bgzip -c >{} && tabix -p vcf {}'
+         cmd = FILTER_GERMLINE.format(np['filter'], np['tag'], self.tagged_vcf, self.filtered_vcf, self.filtered_vcf)
+         
+         _run_command(cmd)
+         
+         # update input file for driver annotation step ... 
+         input_data = copy.deepcopy(self.input_data)
+         input_data['vcf_file']['path'] = self.filtered_vcf
+         self._set_input_vcf(input_data)
+          
+         # add vcf path to concat 
+         self.merge_vcf_dict['c']= self.filtered_vcf
+         self.merge_vcf_dict['d']= self.tagged_vcf
          return None 
    
     def annot_drv_muts(self):
@@ -56,8 +77,9 @@ class VcfAnnotator:
        for drv_muts_file, header_file in input_param.items():
          cmd = ANNOTATE_MUTS.format(self.vcf_filter, drv_muts_file, header_file, self.vcf_path, muts_outfile, muts_outfile)
          _run_command(cmd)         
-         #_run_command('cp -p '+self.outfile+' '+self.outdir+'/..') 
-       return muts_outfile 
+         #_run_command('cp -p '+self.outfile+' '+self.outdir+'/..')
+       self.merge_vcf_dict['a']=muts_outfile 
+       return None
 
     
 
@@ -87,16 +109,21 @@ class VcfAnnotator:
               if gene in lof_gene_list:
                 lof_fh.write(line)
 
-      return compress_vcf(lof_outfile)       
+      self.merge_vcf_dict['b']=compress_vcf(lof_outfile)
+      return None
 
-    def concat_results(self, muts_vcf, lof_vcf):
+    def concat_results(self):
       concat_drv_out = self.outfile_name.format('_drv.vcf.gz')  
-      CONCAT_VCF = 'bcftools concat --allow-overlaps --rm-dups all {} {} {} | bcftools sort | ' \
+      self.merge_vcf_dict['e']=self.input_data['vcf_file']['path']
+ 
+      vcf_files=([self.merge_vcf_dict[myvcf] for myvcf in sorted(self.merge_vcf_dict.keys())])
+      
+      CONCAT_VCF = 'bcftools concat --allow-overlaps --rm-dups all {} | bcftools sort | ' \
       'bgzip -c >{} && tabix -f -p vcf {}'
-      cmd=CONCAT_VCF.format(muts_vcf, lof_vcf, self.vcf_path, concat_drv_out, concat_drv_out)
+      cmd=CONCAT_VCF.format(' '.join(vcf_files), concat_drv_out, concat_drv_out)
       _run_command(cmd)
       _run_command('cp -p '+concat_drv_out+'  '+self.outdir+'/..')
-      return concat_drv_out
+      return None
 
 def get_parameters(param_dict,outdir):
     input_param = {}

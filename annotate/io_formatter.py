@@ -192,6 +192,6 @@ def tempdir(mypath):
       yield path
     finally:
       try:
-        shutil.rmtree(path)
+        print("shutil.rmtree(path)")
       except IOError:
         sys.stderr.write('Failed to clean up temp dir {}'.format(path))
