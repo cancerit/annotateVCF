@@ -29,8 +29,11 @@ def main():
     required.add_argument("-filter", "--vcf_filter", type=str, dest="vcf_filter", nargs='+', required=False,
                           default=['PASS'], help="Include variant sites matching vcf FILTER flag(s)")
 
-    optional.add_argument("-gm", "--germline", type=str, dest="germline", nargs='+', metavar='N', 
-                          required=False, default=None, help="germline mutations files to flag germline variant sites")
+    optional.add_argument("-np", "--normal_panel", type=str, dest="normal_panel", required=False, 
+                          default=None, help="normal panle file to flag germline variant sites")
+
+    optional.add_argument("-gt", "--germline_tag", type=str, dest="germline_tag", required=False, 
+                          default="NPGL", help="tag to dsiplay in normal panel filtered VCF header and INFO field")
 
     optional.add_argument("-g", "--lof_genes", type=str, dest="lof_genes", required=False,
                           default=None, help="LoF gene name file to use for Loss of function annotations")

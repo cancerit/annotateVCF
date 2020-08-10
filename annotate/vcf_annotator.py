@@ -25,8 +25,7 @@ class VcfAnnotator:
        input_data = f.format(['vcf_file'])
        self.drv_mut = f.format(['mutations'])
        self.drv_genes = f.format(['lof_type', 'lof_genes'])
-       
-       self.germline_filter = f.format(['germline'])
+       self.np = f.format(['normal_panel'])
        #set input vcf  paramaters and tmp_oudir.... required for downnstream functions....
        input_data = f.format(['vcf_file'])
        self.vcf_path = input_data['vcf_file']['path']
@@ -36,10 +35,16 @@ class VcfAnnotator:
        self.outdir = basedir
        self.outfile_name = basedir+'/'+self.vcf_name+'{}'
 
-       print("input_data:{}\n drv_mut:{}\n drv_genes:{}\n germline_filter:{}\nBasedir:{}\n".format(input_data,self.drv_mut,self.drv_genes,self.germline_filter, basedir))
+       print("input_data:{}\n drv_mut:{}\n drv_genes:{}\n germline_filter:{}\nBasedir:{}\n".format(input_data,self.drv_mut,self.drv_genes,self.np, basedir))
         
     def tag_germline_vars(self):
-       print(self.germline_filter)   
+         np=self.np['normal_panel']
+         tagged_vcf = self.outfile_name.format('_np.vcf.gz') 
+         TAG_VCF='bcftools annotate -i \'{}\' -a {}  -m \'{}\'  -O z -o {} {}'
+         cmd=TAG_VCF.format(np['filter'], np['path'], np['tag'], tagged_vcf, self.vcf_path)
+         print(cmd)
+         return None 
+   
     def annot_drv_muts(self):
        muts_outfile = self.outfile_name.format('_muts.vcf.gz')
        ANNOTATE_MUTS = 'bcftools annotate -i \'{}\' --merge-logic DRV:unique -a {} -h {} -c CHROM,FROM,TO,INFO/DRV  {}|' \
@@ -57,7 +62,7 @@ class VcfAnnotator:
     
 
     def annotate_lof_genes(self):
-      get_gene=re.compile('.*;VD=(\w+)|.*')
+      get_gene = re.compile('.*;VD=(\w+)|.*')
       ANNOTATE_GENES = 'bcftools annotate -i \'{}\' -a {} -i \' {} \' -h {} -c CHROM,FROM,TO,INFO/DRV {} >{}' 
       # create dummy genome locationo file to annoate LoF genes...
       genome_loc_file = self.outdir+'/genome.tab.gz'

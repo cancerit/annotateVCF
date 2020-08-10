@@ -25,7 +25,8 @@ class IO_Formatter:
         self.vcf_file = kwargs['vcf_file']
         self.gene_file = kwargs.get('lof_genes',None)
         self.muts_file = kwargs.get('mutations',None)
-        self.germline_files = kwargs.get('germline',None)
+        self.np_vcf = kwargs.get('normal_panel',None)
+        self.germline_tag = kwargs['germline_tag']
         self.lof_type = kwargs['lof_type']
         self.outdir = kwargs['outdir']
         self.keepTmp = kwargs['keepTmp']
@@ -43,8 +44,8 @@ class IO_Formatter:
           return self._format_header_genes
         elif input_type == 'mutations':
           return self._format_header_muts
-        elif input_type == 'germline':
-          return self._format_header_germline
+        elif input_type == 'normal_panel':
+          return self._format_vcf_np
         elif input_type == 'vcf_file':
           return self._format_vcf
         elif input_type == 'lof_type':
@@ -75,6 +76,11 @@ class IO_Formatter:
             header_lines[file_name] = [header_line, file_path, ext]
          return header_lines
     
+    def _format_vcf_np(self):
+         f_filter=format_filter(self.filter, 'FILTER=')
+         (file_name, ext)=get_file_metadata(self.np_vcf)
+         return({'name':file_name, 'path':self.np_vcf, 'ext':ext, 'filter':f_filter, 'tag':self.germline_tag})
+
     def _format_vcf(self):
          f_filter=format_filter(self.filter, 'FILTER=')
          (file_name, ext)=get_file_metadata(self.vcf_file)
