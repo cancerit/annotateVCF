@@ -3,16 +3,9 @@ import sys
 import os
 import re
 import io
-import json
-import tempfile
 import copy
 from subprocess import Popen, PIPE, STDOUT
 import pkg_resources
-import shutil
-
-from contextlib import contextmanager
-
-log = logging.getLogger(__name__)
 
 '''
   This code runs bcftools to annoate driver gene and variant sites
@@ -23,27 +16,49 @@ class VcfAnnotator:
         Main class , loads user defined parameters and files
     """
     def __init__(self, f, basedir):
-       self.input_data = f.format(['vcf_file'])
-       self.drv_mut = f.format(['mutations'])
-       self.drv_genes = f.format(['lof_type', 'lof_genes'])
-       self.np = f.format(['normal_panel'])
        self.outdir = basedir
-       #set input vcf  paramaters and tmp_oudir.... required for downnstream functions....
+       self.status_dict=f.format(['input_status'])
+       self.input_data = f.format(['vcf_file'])
+       # set input vcf parameters ...
        self._set_input_vcf(self.input_data)
        self.merge_vcf_dict={}
-
-       #print("input_data:{}\n drv_mut:{}\n drv_genes:{}\n germline_filter:{}\nBasedir:{}\n".format(self.input_data,self.drv_mut,self.drv_genes,self.np, basedir))
+       # run analysis
+       self._runAnalysis(f)
     
+    def _runAnalysis(self, f):
+        status=self.status_dict['input_status']
+        run_status = False
+        a_type= ['normal_panel', 'mutations', 'lof_genes']
+        for analysis in a_type:
+           if status[analysis] and analysis == 'normal_panel':
+             np = f.format([analysis])
+             self.tag_germline_vars(np[analysis])
+             run_status = True
+             logging.info("Analysis completed for : {}".format(analysis)) 
+           if status[analysis] and analysis == 'mutations':
+             drv_mut = f.format([analysis])
+             self.annot_drv_muts(drv_mut[analysis])
+             run_status = True
+             logging.info("Analysis completed for : {}".format(analysis)) 
+           if status[analysis] and analysis == 'lof_genes':
+             drv_genes = f.format(['lof_type', 'lof_genes'])
+             self.annotate_lof_genes(drv_genes)
+             run_status = True
+             logging.info("Analysis completed for : {}".format(analysis)) 
+        if run_status:       
+          logging.info("concatenating results") 
+          self.concat_results() 
+        else:
+          logging.info("Input files not accessible analysis aborted")
+     
     def _set_input_vcf(self,input_data):
        self.vcf_path = input_data['vcf_file']['path']
        self.vcf_ext = input_data['vcf_file']['ext']
        self.vcf_name = input_data['vcf_file']['name']
        self.vcf_filter = input_data['vcf_file']['filter']
        self.outfile_name = self.outdir + '/'+self.vcf_name+'{}'
-       return None
-        
-    def tag_germline_vars(self):
-         np=self.np['normal_panel']
+   
+    def tag_germline_vars(self, np):
          self.tagged_vcf = self.outfile_name.format('_np.vcf.gz') 
          self.filtered_vcf = self.outfile_name.format('_np_filtered.vcf.gz')         
 
@@ -64,39 +79,35 @@ class VcfAnnotator:
          # add vcf path to concat 
          self.merge_vcf_dict['c']= self.filtered_vcf
          self.merge_vcf_dict['d']= self.tagged_vcf
-         return None 
    
-    def annot_drv_muts(self):
+    def annot_drv_muts(self, drv_mut):
        muts_outfile = self.outfile_name.format('_muts.vcf.gz')
        ANNOTATE_MUTS = 'bcftools annotate -i \'{}\' --merge-logic DRV:unique -a {} -h {} -c CHROM,FROM,TO,INFO/DRV  {}|' \
                 'bcftools annotate  -i \'DRV!="." && DRV[*]==VC\' | ' \
                 'bgzip -c >{} && tabix -f -p vcf {}'
        #{'driver_mutations_test': ['##INFO=<ID=DRV,Number=., Type=String, Description="Driver Variant Class">', 'tests/test_drvData/driver_mutations_test.tsv.gz']}
-       input_param = get_parameters(self.drv_mut['mutations'], self.outdir)
+       input_param = get_parameters(drv_mut, self.outdir)
        
        for drv_muts_file, header_file in input_param.items():
          cmd = ANNOTATE_MUTS.format(self.vcf_filter, drv_muts_file, header_file, self.vcf_path, muts_outfile, muts_outfile)
          _run_command(cmd)         
          #_run_command('cp -p '+self.outfile+' '+self.outdir+'/..')
        self.merge_vcf_dict['a']=muts_outfile 
-       return None
 
-    
-
-    def annotate_lof_genes(self):
+    def annotate_lof_genes(self, drv_genes):
       get_gene = re.compile('.*;VD=(\w+)|.*')
-      ANNOTATE_GENES = 'bcftools annotate -i \'{}\' -a {} -i \' {} \' -h {} -c CHROM,FROM,TO,INFO/DRV {} >{}' 
+      ANNOTATE_GENES = 'bcftools annotate -a {} -i \'{} && ({})\' -h {} -c CHROM,FROM,TO,INFO/DRV {} >{}' 
       # create dummy genome locationo file to annoate LoF genes...
       genome_loc_file = self.outdir+'/genome.tab.gz'
       create_dummy_genome(self.vcf_path, genome_loc_file) 
-      input_param = get_parameters(self.drv_genes['lof_genes'], self.outdir)
+      input_param = get_parameters(drv_genes['lof_genes'], self.outdir)
       genes_outfile = self.outfile_name.format('_genes.vcf')
       lof_outfile = self.outfile_name.format('_genes_lof.vcf')
 
       for drv_gene_file, header_file in input_param.items():
         lof_gene_list = get_drv_gene_list(drv_gene_file)
         #map lof effect types to pass variants...
-        cmd = ANNOTATE_GENES.format(self.vcf_filter, genome_loc_file, self.drv_genes['lof_type'], header_file, self.vcf_path, genes_outfile)
+        cmd = ANNOTATE_GENES.format(genome_loc_file, self.vcf_filter, drv_genes['lof_type'], header_file, self.vcf_path, genes_outfile)
         _run_command(cmd)
         with open(lof_outfile, "w") as lof_fh, open(genes_outfile, 'r') as gene_f:
           for line in gene_f:
@@ -108,9 +119,7 @@ class VcfAnnotator:
               # write matching LoF genes....
               if gene in lof_gene_list:
                 lof_fh.write(line)
-
       self.merge_vcf_dict['b']=compress_vcf(lof_outfile)
-      return None
 
     def concat_results(self):
       concat_drv_out = self.outfile_name.format('_drv.vcf.gz')  
@@ -122,8 +131,7 @@ class VcfAnnotator:
       'bgzip -c >{} && tabix -f -p vcf {}'
       cmd=CONCAT_VCF.format(' '.join(vcf_files), concat_drv_out, concat_drv_out)
       _run_command(cmd)
-      _run_command('cp -p '+concat_drv_out+'  '+self.outdir+'/..')
-      return None
+      _run_command('cp -p '+concat_drv_out+'  '+concat_drv_out+'.tbi '+self.outdir+'/..')
 
 def get_parameters(param_dict,outdir):
     input_param = {}
@@ -173,20 +181,9 @@ def _run_command(cmd):
             logging.info("Command run successfully:\n{} OUT:{} Error:{} Exit:{}\n".format(cmd, out, error, exit_code))
         else:
             logging.debug("Error: command exited with non zero exit \
-                          status, please check log file for more details")
+                          status, please check logging file for more details")
             logging.error("OUT:{}:Error:{}:Exit:{}".format(out, error, exit_code))
         return
     except OSError as oe:
         logging.error("Unable to run command:{} Error:{}".format(cmd, oe.args[0]))
         sys.exit("Unable to run command:{} Error:{}".format(cmd, oe.args[0]))
-
-@contextmanager
-def tempdir(mypath):
-    path = tempfile.mkdtemp(dir=mypath)
-    try:
-      yield path
-    finally:
-      try:
-        shutil.rmtree(path)
-      except IOError:
-        sys.stderr.write('Failed to clean up temp dir {}'.format(path))

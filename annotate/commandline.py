@@ -61,17 +61,13 @@ def main():
     opts = optParser.parse_args()
     if not opts.vcf_file:
         sys.exit('\nERROR Arguments required\n\tPlease run: annotateVcf --help\n')
-    print("Annotating VCF files")
+    print("Annotating VCF file")
     
     # vars function returns __dict__ of Namespace instance
     my_formatter = formatter.IO_Formatter(**vars(opts))
     outdir_path=my_formatter.format(['outdir'])
     with formatter.tempdir(outdir_path['outdir']) as base_dir:
-      my_annotator = annotator.VcfAnnotator(my_formatter, base_dir)
-      my_annotator.tag_germline_vars()
-      my_annotator.annot_drv_muts() 
-      my_annotator.annotate_lof_genes() 
-      my_annotator.concat_results() 
+      annotator.VcfAnnotator(my_formatter, base_dir)
 
 if __name__ == '__main__':
     main()
