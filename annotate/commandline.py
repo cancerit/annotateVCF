@@ -33,7 +33,7 @@ def main():
                           default=None, help="normal panle file to flag germline variant sites")
 
     optional.add_argument("-gt", "--germline_tag", type=str, dest="germline_tag", required=False, 
-                          default="NPGL", help="tag to dsiplay in normal panel filtered VCF header and INFO field")
+                          default="NPGL", help="tag to dsiplay in normal panel filtered vcf header and INFO field")
 
     optional.add_argument("-g", "--lof_genes", type=str, dest="lof_genes", required=False,
                           default=None, help="LoF gene name file to use for Loss of function annotations")
