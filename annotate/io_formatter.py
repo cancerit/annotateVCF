@@ -24,6 +24,7 @@ class IO_Formatter:
         self.np_vcf = kwargs.get('normal_panel',None)
         self.np_tag = kwargs['germline_tag']
         self.lof_type = kwargs['lof_type']
+        self.header_line = kwargs['header_line']
         self.outdir = kwargs['outdir']
         self.keepTmp = kwargs['keepTmp']
         self.filter = kwargs.get('vcf_filter',None)
@@ -95,16 +96,15 @@ class IO_Formatter:
     # generic functions ....
 def check_inputs(file_dict):
     """
-
     :param file_dict: check status of input files..
     :return: status dict
     """
     for f_type in file_dict.keys():
         if file_dict[f_type] and os.path.isfile(file_dict[f_type]):
-            logging.info("{} input file :{}".format( f_type, file_dict[f_type]))
+            logging.debug("{} input file :{}".format( f_type, file_dict[f_type]))
             file_dict[f_type] = True
         else:
-            logging.info("File not found, skipping analysis step for : {}".format(f_type))
+            logging.debug("File not provided, skipping analysis step  : {}".format(f_type))
             file_dict[f_type] = False
     return file_dict
 

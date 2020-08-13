@@ -10,6 +10,7 @@ import logging.config
 
 configdir = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'config/')
 log_config = configdir + 'logging.conf'
+info_header = configdir + 'info.header'
 logging.config.fileConfig(log_config)
 log = logging.getLogger(__name__)
 version = pkg_resources.require("annotateVcf")[0].version
@@ -44,6 +45,9 @@ def main():
     optional.add_argument("-lof", "--lof_type", type=str, dest="lof_type", nargs='+', metavar='N',
                           required=False, default=["stop_lost","start_lost","ess_splice",
                           "frameshift","nonsense"], help="Loss of function effect type")
+
+    optional.add_argument("-hl", "--header_line", type=str, dest="header_line",
+                          required=False, default=info_header, help="Loss of function effect type")
 
     optional.add_argument("-o", "--outdir", type=str, dest="outdir",
                           default="./", help="path to output directory")

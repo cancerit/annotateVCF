@@ -27,8 +27,9 @@ class VcfAnnotator:
 
         # set input vcf parameters ...
         self._set_input_vcf(self.input_data)
-        self.drv_header = self.get_drv_header_file()
+        self.drv_header = f.header_line
         self.merge_vcf_dict={}
+        self.keepTmp = f.keepTmp
         # run analysis
         self._runAnalysis(f)
 
@@ -39,33 +40,34 @@ class VcfAnnotator:
         :return:
         """
         status=self.status_dict['input_status']
-        vcf_filter_data = f.format(['format_filter'])
-        self.vcf_filter = vcf_filter_data['format_filter']
+        vcf_filters = f.format(['format_filter'])
+        self.vcf_filter = vcf_filters['format_filter']
         run_status = False
         a_type= ['normal_panel', 'mutations', 'lof_genes']
         
         for analysis in a_type:
             if status[analysis] and analysis == 'normal_panel':
+                logging.info("Tagging normal variants")
                 self.np_tag = f.np_tag
                 self.np_vcf = f.np_vcf
                 self.tag_germline_vars()
                 run_status = True
-                logging.info("Analysis completed for : {}".format(analysis))
             if status[analysis] and analysis == 'mutations':
+                logging.info("Annotating driver mutations")
                 self.muts_file = f.muts_file
                 self.annot_drv_muts()
                 run_status = True
-                logging.info("Analysis completed for : {}".format(analysis))
             if status[analysis] and analysis == 'lof_genes':
+                logging.info("Annotating LoF genes")
                 self.genes_file = f.genes_file
                 lof_types_data = f.format(['lof_type'])
                 self.lof_types = lof_types_data['lof_type']
                 self.annotate_lof_genes()
                 run_status = True
-                logging.info("Analysis completed for : {}".format(analysis))
         if run_status:
             logging.info("concatenating results")
             self.concat_results()
+            logging.info("Analysis completed successfully")
         else:
             logging.info("Input files not accessible analysis aborted")
 
@@ -166,19 +168,11 @@ class VcfAnnotator:
         cmd=CONCAT_VCF.format(' '.join(vcf_files), concat_drv_out, concat_drv_out)
         _run_command(cmd)
         _run_command('cp -p '+concat_drv_out+'  '+concat_drv_out+'.tbi '+self.outdir+'/..')
+        if self.keepTmp:
+          _run_command('cp -rp '+self.outdir+' '+self.outdir+'_'+self.vcf_name)
+        
 
-    def get_drv_header_file(self):
-        """
-        create header annotation tag for driver annotations
-        :param header_id:
-        :param header_desc:
-        :return:
-        """
-        header_file = self.outfile_name.format('_drv.header')
-        with open(header_file, 'w') as hf:
-            hf.write('##INFO=<ID=DRV,Number=., Type=String, Description="Driver Variant Class">')
-        return header_file
-
+# generic methods ....
 def get_drv_gene_list(drv_genes):
     with open(drv_genes) as f_drv:
         lof_gene_list = f_drv.read().splitlines()
@@ -223,7 +217,7 @@ def _run_command(cmd):
         (out, error) = cmd_obj.communicate()
         exit_code = cmd_obj.returncode
         if (exit_code == 0):
-            logging.info("Command run successfully:\n{} OUT:{} Error:{} Exit:{}\n".format(cmd, out, error, exit_code))
+            logging.debug("Command run successfully:\n{} OUT:{} Error:{} Exit:{}\n".format(cmd, out, error, exit_code))
         else:
             logging.debug("Error: command exited with non zero exit \
                           status, please check logging file for more details")
