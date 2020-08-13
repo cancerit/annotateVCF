@@ -39,13 +39,11 @@ Various exceptions can occur for malformed input files.
 ### inputFormat
 
  * ```VCF file```  snv or indel vcf file annotated using [VAGrENT]
- * ```drvData.json``` file containg paths to driver annotation data (read from deafult location annotate/config):
- * ```annotate/config/drvData``` folder containing driver annotation reference files as listed below
- * ```lof_genes_v1.0.txt``` list of known loss of function [LoF] genes
- * ```lof_genes_previous_symbo_v1.0.txt``` list of known loss of function [LoF] genes referred by different previous gene symbols ( to make sure all gene synonyms were mathced with input vcf)
+ * ```normal_panel.vcf.gz```  normal panel to tag germline variants [VAGrENT]
+ * ```lof_genes_with_previous_symbo_v1.0.txt``` list of known loss of function [LoF] genes along with previous gene symbols ( to make sure all gene synonyms were mathced with input vcf)
+ * ```consequence types``` lof consequence types to restrict driver gene annotations  
  * ```driver_mutations_grch38_v1.0.tsv.gz``` tab separated driver mutations along with consequence type
- * ```genome_grch38.tab.gz``` tab separated chromosme lenght file created from genome index file
- * ```vcf_info.txt``` vcf header INFO line
+ * ```info.header``` vcf header INFO line
 
 ### outputFormat
 

@@ -47,7 +47,7 @@ def main():
                           "frameshift","nonsense"], help="Loss of function effect type")
 
     optional.add_argument("-hl", "--header_line", type=str, dest="header_line",
-                          required=False, default=info_header, help="Loss of function effect type")
+                          required=False, default=info_header, help="vcf info header line and info tag")
 
     optional.add_argument("-o", "--outdir", type=str, dest="outdir",
                           default="./", help="path to output directory")
