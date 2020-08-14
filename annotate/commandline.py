@@ -15,8 +15,8 @@ logging.config.fileConfig(log_config)
 log = logging.getLogger(__name__)
 version = pkg_resources.require("annotateVcf")[0].version
 
-def main():
 
+def main():
     usage = "\n %prog [options] -vcf input.vcf [-drv_json test.json -drv_data test_dir] "
 
     optParser = argparse.ArgumentParser(prog='annotateVcf',
@@ -27,24 +27,26 @@ def main():
     required.add_argument("-vcf", "--vcf_file", type=str, dest="vcf_file", required=True,
                           default=None, help="vcf_file to annotate")
 
-    required.add_argument("-filter", "--vcf_filter", type=str, dest="vcf_filter", nargs='+', required=False,
-                          default=['PASS'], help="Include variant sites matching vcf FILTER flag(s)")
+    required.add_argument("-filter", "--vcf_filter", type=str, dest="vcf_filter", nargs='+',
+                          required=False, default=['PASS'], help="Include variant sites \
+                          matching vcf FILTER flag(s), can be specified multiple times values \
+                          with spcae separator")
 
-    optional.add_argument("-np", "--normal_panel", type=str, dest="normal_panel", required=False, 
+    optional.add_argument("-np", "--normal_panel", type=str, dest="normal_panel", required=False,
                           default=None, help="normal panle file to flag germline variant sites")
 
-    optional.add_argument("-gt", "--germline_tag", type=str, dest="germline_tag", required=False, 
-                          default="NPGL", help="tag to dsiplay in normal panel filtered vcf header and INFO field")
+    optional.add_argument("-gt", "--germline_tag", type=str, dest="germline_tag", required=False,
+                          default="NPGL", help="tag to mark normal panel filtered variants in vcf INFO field")
 
     optional.add_argument("-g", "--lof_genes", type=str, dest="lof_genes", required=False,
-                          default=None, help="LoF gene name file to use for Loss of function annotations")
+                          default=None, help="LoF gene name file to use annotations")
 
     optional.add_argument("-m", "--mutations", type=str, dest="mutations", required=False,
                           default=None, help="driver mutations file to use for driver variant annotations")
 
     optional.add_argument("-lof", "--lof_type", type=str, dest="lof_type", nargs='+', metavar='N',
-                          required=False, default=["stop_lost","start_lost","ess_splice",
-                          "frameshift","nonsense"], help="Loss of function effect type")
+                          required=False, default=["stop_lost", "start_lost", "ess_splice",
+                                                   "frameshift", "nonsense"], help="Loss of function effect types")
 
     optional.add_argument("-hl", "--header_line", type=str, dest="header_line",
                           required=False, default=info_header, help="vcf info header line and info tag")
@@ -66,12 +68,13 @@ def main():
     if not opts.vcf_file:
         sys.exit('\nERROR Arguments required\n\tPlease run: annotateVcf --help\n')
     print("Annotating VCF file")
-    
+
     # vars function returns __dict__ of Namespace instance
     my_formatter = formatter.IO_Formatter(**vars(opts))
-    outdir_path=my_formatter.format(['outdir'])
+    outdir_path = my_formatter.format(['outdir'])
     with formatter.tempdir(outdir_path['outdir']) as base_dir:
-      annotator.VcfAnnotator(my_formatter, base_dir)
+        annotator.VcfAnnotator(my_formatter, base_dir)
+
 
 if __name__ == '__main__':
     main()

@@ -29,10 +29,10 @@ Uses [bcftools], [tabix] and [bgzip] in user's path , these are part of [htslib]
 
 ## Tools
 
-`annotateVcf` has multiple commands, listed with `annotateVcf --help`.
+`annotateVcf` has multiple command line options, listed with `annotateVcf --help`.
 
 ### annotateVcf
-Takes vcf file as input along with driver gene information and outputs VCF with updated INFO field.
+Takes vcf file as input along with driver gene information, and optional unmatched normal panel vcf and outputs VCF with added  DRV INFO field.
 
 Various exceptions can occur for malformed input files.
 
@@ -40,9 +40,9 @@ Various exceptions can occur for malformed input files.
 
  * ```VCF file```  snv or indel vcf file annotated using [VAGrENT]
  * ```normal_panel.vcf.gz```  normal panel to tag germline variants [VAGrENT]
- * ```lof_genes_with_previous_symbo_v1.0.txt``` list of known loss of function [LoF] genes along with previous gene symbols ( to make sure all gene synonyms were mathced with input vcf)
+ * ```lof_genes.txt ``` list of known loss of function [LoF] genes along with previous gene symbols ( to make sure all gene synonyms were mathced with input vcf)
  * ```consequence types``` lof consequence types to restrict driver gene annotations  
- * ```driver_mutations_grch38_v1.0.tsv.gz``` tab separated driver mutations along with consequence type
+ * ```driver_mutations.tsv.gz``` tab separated driver mutations along with consequence type 
  * ```info.header``` vcf header INFO line
 
 ### outputFormat

@@ -13,33 +13,35 @@ from contextlib import contextmanager
   This code runs bcftools to annoate driver gene and variant sites
 '''
 
+
 class IO_Formatter:
     """
         Main class , loads user defined parameters and files
     """
+
     def __init__(self, **kwargs):
         self.vcf_file = kwargs['vcf_file']
-        self.genes_file = kwargs.get('lof_genes',None)
-        self.muts_file = kwargs.get('mutations',None)
-        self.np_vcf = kwargs.get('normal_panel',None)
+        self.genes_file = kwargs.get('lof_genes', None)
+        self.muts_file = kwargs.get('mutations', None)
+        self.np_vcf = kwargs.get('normal_panel', None)
         self.np_tag = kwargs['germline_tag']
         self.lof_type = kwargs['lof_type']
         self.header_line = kwargs['header_line']
         self.outdir = kwargs['outdir']
         self.keepTmp = kwargs['keepTmp']
-        self.filter = kwargs.get('vcf_filter',None)
+        self.filter = kwargs.get('vcf_filter', None)
         # check input data ...
 
-    def format(self,input_array):
+    def format(self, input_array):
         """
 
         :param input_array: array containing parameters to invoke formatter functions
         :return: formatter data for given parameter
         """
-        format_store={}
+        format_store = {}
         for input_type in input_array:
             formatter = self._get_formatter(input_type)
-            format_store[input_type]=formatter()
+            format_store[input_type] = formatter()
         return format_store
 
     def _get_formatter(self, input_type):
@@ -61,8 +63,8 @@ class IO_Formatter:
         check user input files accessibility status
         :return: status dict
         """
-        input_status = check_inputs( {'vcf_file':self.vcf_file, 'normal_panel':self.np_vcf,
-                                      'mutations':self.muts_file, 'lof_genes':self.genes_file})
+        input_status = check_inputs({'vcf_file': self.vcf_file, 'normal_panel': self.np_vcf,
+                                     'mutations': self.muts_file, 'lof_genes': self.genes_file})
         if input_status['vcf_file'] is None:
             sys.exit("Please provide input vcf file")
         return input_status
@@ -79,7 +81,7 @@ class IO_Formatter:
 
     def _format_lof(self):
         """
-         format lof consequence types to filter 
+         format lof consequence types to filter
          :return:
          """
         return format_filter(self.lof_type, 'INFO/VC=')
@@ -94,6 +96,8 @@ class IO_Formatter:
         return outputPath
 
     # generic functions ....
+
+
 def check_inputs(file_dict):
     """
     :param file_dict: check status of input files..
@@ -101,12 +105,13 @@ def check_inputs(file_dict):
     """
     for f_type in file_dict.keys():
         if file_dict[f_type] and os.path.isfile(file_dict[f_type]):
-            logging.debug("{} input file :{}".format( f_type, file_dict[f_type]))
+            logging.debug("{} input file :{}".format(f_type, file_dict[f_type]))
             file_dict[f_type] = True
         else:
             logging.debug("File not provided, skipping analysis step  : {}".format(f_type))
             file_dict[f_type] = False
     return file_dict
+
 
 def format_filter(filter_vals, filter_type):
     """
@@ -115,9 +120,9 @@ def format_filter(filter_vals, filter_type):
     :param filter_type: filter prefix [e.g., FILTER, INFO, etc ]
     :return: formatted filter string
     """
-    format_store=[]
+    format_store = []
     for val in filter_vals:
-        format_store.append(filter_type + "\"" + val + "\"" )
+        format_store.append(filter_type + "\"" + val + "\"")
     return ' || '.join(format_store)
 
 
@@ -130,8 +135,9 @@ def get_file_metadata(full_file_name):
     (name_no_ext, first_ext) = os.path.splitext(name)
     (name_no_ext2, second_ext) = os.path.splitext(name_no_ext)
     ext = second_ext + first_ext
-    file_metadata = {'name' : name_no_ext2, 'ext' : ext , 'path' : full_file_name }      
+    file_metadata = {'name': name_no_ext2, 'ext': ext, 'path': full_file_name}
     return file_metadata
+
 
 @contextmanager
 def tempdir(mypath):
