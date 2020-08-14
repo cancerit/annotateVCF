@@ -47,7 +47,7 @@ Various exceptions can occur for malformed input files.
 
 ### outputFormat
 
- * ```<input>.drv.vcf.gz ``` output vcf file with DRV info tag and consequence type if known 
+ * ```<input>.drv.vcf.gz ``` output vcf file with DRV info field and consequence type if known, LoF in case annoated using LoF gene list.
 
 ## INSTALL
 Installing via `pip install`. Simply execute with the path to the compiled 'whl' found on the [release page][annotateVcf-releases]:

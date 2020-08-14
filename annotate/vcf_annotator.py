@@ -49,15 +49,15 @@ class VcfAnnotator:
 
         for analysis in a_type:
             if status[analysis] and analysis == 'normal_panel':
-                logging.info("Tagging normal variants")
+                logging.info("Tagging germline variants with INFO tag:{}".format(f.np_tag))
                 self.tag_germline_vars(f.np_tag, f.np_vcf)
                 run_status = True
             if status[analysis] and analysis == 'mutations':
-                logging.info("Annotating driver mutations")
+                logging.info("Annotating driver mutations with INFO field:DRV=<consequence(s)>")
                 self.annot_drv_muts(f.muts_file)
                 run_status = True
             if status[analysis] and analysis == 'lof_genes':
-                logging.info("Annotating LoF genes")
+                logging.info("Annotating LoF genes with INFO filed:DRV=LoF")
                 lof_types = f.format(['lof_type'])
                 self.annotate_lof_genes(f.genes_file, lof_types['lof_type'])
                 run_status = True
