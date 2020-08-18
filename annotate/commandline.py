@@ -29,7 +29,7 @@ def main():
 
     required.add_argument("-filter", "--vcf_filter", type=str, dest="vcf_filter", nargs='+',
                           required=False, default=['PASS'], help="Include variant sites \
-                          matching vcf FILTER flag(s), can be specified multiple values \
+                          matching vcf FILTER flag(s), multiple flags can be specified \
                           with space separator")
 
     optional.add_argument("-np", "--normal_panel", type=str, dest="normal_panel", required=False,
@@ -74,7 +74,6 @@ def main():
     outdir_path = my_formatter.format(['outdir'])
     with formatter.tempdir(outdir_path['outdir']) as base_dir:
         annotator.VcfAnnotator(my_formatter, base_dir)
-
 
 if __name__ == '__main__':
     main()
