@@ -3,18 +3,18 @@
 from setuptools import setup
 
 config = {
-    'version': '1.0.2',
+    'version': '1.1.0',
     'name': 'annotateVcf',
-    'description': 'Tool to annotate vcf files...',
+    'description': 'Tool to annotate and filter vcf files...',
     'author': 'Shriram Bhosle',
     'url': 'https://github.com/cancerIT/annotateVcf',
     'author_email': 'cgphelp@sanger.ac.uk',
-    'python_requires': '>= 3.3',
+    'python_requires': '>= 3.6',
     'install_requires': ['tzlocal'],
     'packages': ['annotate'],
-    'package_data': {'annotate':['config/*.conf','config/*.json','config/drvData/*']},
+    'package_data': {'annotate':['config/*.conf','config/*.header']},
     'entry_points': {
-        'console_scripts': ['annotateVcf=annotate.annotate_cmd:main'],
+        'console_scripts': ['annotateVcf=annotate.commandline:main'],
     }
 }
 

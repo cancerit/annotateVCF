@@ -29,27 +29,25 @@ Uses [bcftools], [tabix] and [bgzip] in user's path , these are part of [htslib]
 
 ## Tools
 
-`annotateVcf` has multiple commands, listed with `annotateVcf --help`.
+`annotateVcf` has multiple command line options, listed with `annotateVcf --help`.
 
 ### annotateVcf
-Takes vcf file as input along with driver gene information and outputs VCF with updated INFO field.
+Takes vcf file as input along with driver gene information, and optional unmatched normal panel vcf and outputs VCF with added  DRV INFO field.
 
 Various exceptions can occur for malformed input files.
 
 ### inputFormat
 
- * ```VCF file```  snv or indel vcf file annotated using [VAGrENT]
- * ```drvData.json``` file containg paths to driver annotation data (read from deafult location annotate/config):
- * ```annotate/config/drvData``` folder containing driver annotation reference files as listed below
- * ```lof_genes_v1.0.txt``` list of known loss of function [LoF] genes
- * ```lof_genes_previous_symbo_v1.0.txt``` list of known loss of function [LoF] genes referred by different previous gene symbols ( to make sure all gene synonyms were mathced with input vcf)
- * ```driver_mutations_grch38_v1.0.tsv.gz``` tab separated driver mutations along with consequence type
- * ```genome_grch38.tab.gz``` tab separated chromosme lenght file created from genome index file
- * ```vcf_info.txt``` vcf header INFO line
+ * ```input_vcf.gz```  snv or indel vcf file annotated using [VAGrENT]
+ * ```normal_panel.vcf.gz```  normal panel to tag germline variants [VAGrENT]
+ * ```lof_genes.txt ``` list of known loss of function [LoF] genes along with previous gene symbols ( to make sure all gene synonyms were matched with input vcf)
+ * ```consequence types``` lof consequence types to restrict driver gene annotations  
+ * ```driver_mutations.tsv.gz``` tab separated driver mutations along with consequence type 
+ * ```info.header``` vcf header INFO line 
 
 ### outputFormat
 
- * ```<input>.drv.vcf.gz ``` output vcf file with DRV info tag and consequence type if known 
+ * ```<input>.drv.vcf.gz ``` output vcf file with DRV info field and consequence type if known, LoF in case annotated using LoF gene list.
 
 ## INSTALL
 Installing via `pip install`. Simply execute with the path to the compiled 'whl' found on the [release page][annotateVcf-releases]:
