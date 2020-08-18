@@ -43,7 +43,7 @@ Various exceptions can occur for malformed input files.
  * ```lof_genes.txt ``` list of known loss of function [LoF] genes along with previous gene symbols ( to make sure all gene synonyms were matched with input vcf)
  * ```consequence types``` lof consequence types to restrict driver gene annotations  
  * ```driver_mutations.tsv.gz``` tab separated driver mutations along with consequence type 
- * ```info.header``` vcf header INFO line
+ * ```info.header``` vcf header INFO line 
 
 ### outputFormat
 
@@ -137,5 +137,5 @@ pip install --find-links=~/wheels annotateVcf
  [VAGrENT]: https://github.com/cancerit/VAGrENT 
  [travis-master-badge]: https://travis-ci.org/cancerit/annotateVCF.svg?branch=master
  [travis-develop-badge]: https://travis-ci.org/cancerit/annotateVCF.svg?branch=develop
- [travis-repo]: https://travis-ci.org/cancerit/annotateVcf
+ [travis-repo]: https://travis-ci.org/cancerit/annotateVCF
  [annotateVcf-releases]: https://github.com/cancerit/annotateVCF/releases
