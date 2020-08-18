@@ -8,7 +8,7 @@ from subprocess import Popen, PIPE, STDOUT
 import pkg_resources
 
 '''
-  This code runs bcftools to annoate driver gene and variant sites
+  This code runs bcftools to annotates driver gene and variant sites
 '''
 
 
@@ -49,7 +49,7 @@ class VcfAnnotator:
 
         for analysis in a_type:
             if status[analysis] and analysis == 'normal_panel':
-                logging.info("Tagging germline variants with INFO tag:{}".format(f.np_tag))
+                logging.info(f"Tagging germline variants with INFO tag:{f.np_tag}")
                 self.tag_germline_vars(f.np_tag, f.np_vcf)
                 run_status = True
             if status[analysis] and analysis == 'mutations':
@@ -92,12 +92,12 @@ class VcfAnnotator:
         tagged_vcf = self.outfile_name.format('_np.vcf.gz')
         filtered_vcf = self.outfile_name.format('_np_filtered.vcf.gz')
 
-        TAG_GERMLINE = 'bcftools annotate -a {} -i \'{}\'  -m \'{}\'  {} | bgzip -c >{} && tabix -p vcf {}'
-        cmd = TAG_GERMLINE.format(np_vcf, self.vcf_filter, np_tag, self.vcf_path, tagged_vcf, tagged_vcf)
+        cmd = f"bcftools annotate -a {np_vcf} -i '{self.vcf_filter}'  -m '{np_tag}'" \
+              f" {self.vcf_path} | bgzip -c >{tagged_vcf} && tabix -p vcf {tagged_vcf}"
         _run_command(cmd)
 
-        FILTER_GERMLINE = 'bcftools  view -i \'{} && {}=0\' {} | bgzip -c >{} && tabix -p vcf {}'
-        cmd = FILTER_GERMLINE.format(self.vcf_filter, np_tag, tagged_vcf, filtered_vcf, filtered_vcf)
+        cmd = f"bcftools  view -i '{self.vcf_filter} && {np_tag}=0' {tagged_vcf} | " \
+              f"bgzip -c >{filtered_vcf} && tabix -p vcf {filtered_vcf}"
 
         _run_command(cmd)
 
@@ -118,12 +118,11 @@ class VcfAnnotator:
         :return:
         """
         muts_outfile = self.outfile_name.format('_muts.vcf.gz')
-        ANNOTATE_MUTS = 'bcftools annotate -i \'{}\' --merge-logic DRV:unique -a {} -h {} ' \
-                        '-c CHROM,FROM,TO,INFO/DRV {} |' \
-                        'bcftools annotate  -i \'DRV!="." && DRV[*]==VC\' | ' \
-                        'bgzip -c >{} && tabix -f -p vcf {}'
-        cmd = ANNOTATE_MUTS.format(self.vcf_filter, muts_file, self.drv_header,
-                                   self.vcf_path, muts_outfile, muts_outfile)
+        cmd = f"bcftools annotate -i '{self.vcf_filter}' --merge-logic DRV:unique" \
+              f" -a {muts_file} -h {self.drv_header} " \
+              f"-c CHROM,FROM,TO,INFO/DRV {self.vcf_path} |" \
+              f"bcftools annotate  -i 'DRV!=\".\" && DRV[*]==VC' | " \
+              f"bgzip -c >{muts_outfile} && tabix -f -p vcf {muts_outfile}"
         _run_command(cmd)
         self.merge_vcf_dict['a'] = muts_outfile
 
@@ -135,7 +134,6 @@ class VcfAnnotator:
         :return:
         """
         get_gene = re.compile(r'.*;VD=(\w+)|.*')
-        ANNOTATE_GENES = 'bcftools annotate -a {} -i \'{} && ({})\' -h {} -c CHROM,FROM,TO,INFO/DRV {} >{}'
         # create dummy genome locationo file to annoate LoF genes...
         genome_loc_file = self.outdir + '/genome.tab.gz'
         create_dummy_genome(self.vcf_path, genome_loc_file)
@@ -143,8 +141,8 @@ class VcfAnnotator:
         lof_outfile = self.outfile_name.format('_genes_lof.vcf')
         lof_gene_list = get_drv_gene_list(genes_file)
         # map lof effect types to pass variants...
-        cmd = ANNOTATE_GENES.format(genome_loc_file, self.vcf_filter, lof_types, self.drv_header, self.vcf_path,
-                                    genes_outfile)
+        cmd = f"bcftools annotate -a {genome_loc_file} -i '{self.vcf_filter} && ({lof_types})' " \
+              f"-h {self.drv_header} -c CHROM,FROM,TO,INFO/DRV {self.vcf_path} >{genes_outfile}"
         _run_command(cmd)
         with open(lof_outfile, "w") as lof_fh, open(genes_outfile, 'r') as gene_f:
             for line in gene_f:
@@ -164,9 +162,8 @@ class VcfAnnotator:
 
         vcf_files = ([self.merge_vcf_dict[myvcf] for myvcf in sorted(self.merge_vcf_dict.keys())])
 
-        CONCAT_VCF = 'bcftools concat --allow-overlaps --rm-dups all {} | bcftools sort | ' \
-                     'bgzip -c >{} && tabix -f -p vcf {}'
-        cmd = CONCAT_VCF.format(' '.join(vcf_files), concat_drv_out, concat_drv_out)
+        cmd = f"bcftools concat --allow-overlaps --rm-dups all {' '.join(vcf_files)} | bcftools sort | " \
+              f"bgzip -c >{concat_drv_out} && tabix -f -p vcf {concat_drv_out}"
         _run_command(cmd)
         _run_command('cp -p ' + concat_drv_out + '  ' + concat_drv_out + '.tbi ' + self.outdir + '/..')
         if self.keepTmp:
@@ -186,8 +183,7 @@ def compress_vcf(vcf):
     :return:
     """
     outfile = vcf + '.gz'
-    BGZIP_TABIX = 'bgzip -c <{} >{} && tabix -f -p vcf {}'
-    cmd = BGZIP_TABIX.format(vcf, outfile, outfile)
+    cmd = f"bgzip -c <{vcf} >{outfile} && tabix -f -p vcf {outfile}"
     _run_command(cmd)
     return outfile
 
@@ -198,9 +194,8 @@ def create_dummy_genome(input_vcf, genome_loc):
     :param genome_loc:
     :return:
     """
-    DUMMY_GENOME_TAB = 'tabix -l {} | xargs -I vcf_chr printf \'vcf_chr\t1\t400000000\tLoF\n\' |' \
-                       'bgzip -c >{} && tabix -s1 -b2 -e3 {}'
-    cmd = DUMMY_GENOME_TAB.format(input_vcf, genome_loc, genome_loc)
+    cmd = f"tabix -l {input_vcf} | xargs -I vcf_chr printf 'vcf_chr\t1\t400000000\tLoF\n' |" \
+          f"bgzip -c >{genome_loc} && tabix -s1 -b2 -e3 {genome_loc}"
     _run_command(cmd)
 
 
@@ -211,8 +206,7 @@ def unheader_vcf(header_vcf, unheader_vcf):
     :param unheader_vcf:
     :return:
     """
-    UNHEADER_VCF = 'bcftools view -H {} >{}'
-    cmd = UNHEADER_VCF.format(header_vcf, unheader_vcf)
+    cmd = f"bcftools view -H {header_vcf} >{unheader_vcf}"
     _run_command(cmd)
     return unheader_vcf
 
@@ -226,24 +220,28 @@ def _run_command(cmd):
     """ runs command in a shell, returns stdout and exit code"""
     if not len(cmd):
         raise ValueError("Must supply at least one argument")
+
+    # To capture standard error in the result, use stderr=subprocess.STDOUT:
+    cmd_obj = Popen(cmd, stdin=None, stdout=PIPE, stderr=PIPE,
+                    shell=True, universal_newlines=True, bufsize=-1,
+                    close_fds=True, executable='/bin/bash')
     try:
         # To capture standard error in the result, use stderr=subprocess.STDOUT:
-        cmd_obj = Popen(cmd, stdin=None, stdout=PIPE, stderr=PIPE,
-                        shell=True, universal_newlines=True, bufsize=-1,
-                        close_fds=True, executable='/bin/bash')
         # logging.info("running command:{}".format(cmd))
         (out, error) = cmd_obj.communicate()
         exit_code = cmd_obj.returncode
         if (exit_code == 0):
-            logging.debug("Command run successfully:\n{} \
-                          OUT:{} Error:{} Exit:{}\n".format(cmd, out, error, exit_code))
+            logging.debug(f"Command run successfully:\n{cmd}"
+                          f"OUT:{out} Error:{error} Exit:{exit_code}\n")
         else:
             logging.info("Error: command exited with non zero exit \
                           status, please check logging file for more details")
-            logging.error("OUT:{}:Error:{}:Exit:{}".format(out, error, exit_code))
+            logging.error(f"OUT:{out}:Error:{error}:Exit:{exit_code}")
             if exit_code != 0:
                 sys.exit("Exiting...")
         return
-    except OSError as oe:
-        logging.error("Unable to run command:{} Error:{}".format(cmd, oe.args[0]))
-        sys.exit("Unable to run command:{} Error:{}".format(cmd, oe.args[0]))
+    except TimeoutExpired:
+        cmd_obj.kill()
+        (out, error) = cmd_obj.communicate()
+        logging.error(f"Unable to run command:{cmd}: Out:{out} : Error:{error}")
+        sys.exit(f"Unable to run command:{cmd}: Out:{out} : Error:{error}")

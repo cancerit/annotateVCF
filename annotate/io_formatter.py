@@ -10,7 +10,7 @@ import shutil
 from contextlib import contextmanager
 
 '''
-  This code runs bcftools to annoate driver gene and variant sites
+  This code runs bcftools to annotate driver gene and variant sites
 '''
 
 
@@ -105,10 +105,10 @@ def check_inputs(file_dict):
     """
     for f_type in file_dict.keys():
         if file_dict[f_type] and os.path.isfile(file_dict[f_type]):
-            logging.debug("{} input file :{}".format(f_type, file_dict[f_type]))
+            logging.debug(f"input: {f_type}  :{file_dict[f_type]}")
             file_dict[f_type] = True
         else:
-            logging.debug("File not provided, skipping analysis step  : {}".format(f_type))
+            logging.debug(f"File not provided, skipping analysis step  : {f_type}")
             file_dict[f_type] = False
     return file_dict
 
@@ -153,4 +153,4 @@ def tempdir(mypath):
         try:
             shutil.rmtree(path)
         except IOError:
-            sys.stderr.write('Failed to clean up temp dir {}'.format(path))
+            sys.stderr.write(f'Failed to clean up temp dir {path}')

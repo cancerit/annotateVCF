@@ -29,11 +29,11 @@ def main():
 
     required.add_argument("-filter", "--vcf_filter", type=str, dest="vcf_filter", nargs='+',
                           required=False, default=['PASS'], help="Include variant sites \
-                          matching vcf FILTER flag(s), can be specified multiple times values \
-                          with spcae separator")
+                          matching vcf FILTER flag(s), can be specified multiple values \
+                          with space separator")
 
     optional.add_argument("-np", "--normal_panel", type=str, dest="normal_panel", required=False,
-                          default=None, help="normal panle file to flag germline variant sites")
+                          default=None, help="normal panel file to flag germline variant sites")
 
     optional.add_argument("-gt", "--germline_tag", type=str, dest="germline_tag", required=False,
                           default="NPGL", help="tag to mark normal panel filtered variants in vcf INFO field")
@@ -55,7 +55,7 @@ def main():
                           default="./", help="path to output directory")
 
     optional.add_argument("-tmp", "--keepTmp", action="store_true", dest="keepTmp",
-                          default=False, help="Flag to keep tmporary files")
+                          default=False, help="Flag to keep temporary files")
 
     optional.add_argument("-v", "--version", action='version', version='%(prog)s ' + version)
     optional.add_argument("-q", "--quiet", action="store_false", dest="verbose", required=False, default=True)
