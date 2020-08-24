@@ -1,3 +1,5 @@
+## 1.1.2
+* added missing brackets to consider multiple filter flags 
 ## 1.1.1
 * Updated version in dockerfile 
 ## 1.1.0
