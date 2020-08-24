@@ -96,7 +96,7 @@ class VcfAnnotator:
               f" {self.vcf_path} | bgzip -c >{tagged_vcf} && tabix -p vcf {tagged_vcf}"
         _run_command(cmd)
 
-        cmd = f"bcftools  view -i '{self.vcf_filter} && {np_tag}=0' {tagged_vcf} | " \
+        cmd = f"bcftools  view -i '({self.vcf_filter}) && {np_tag}=0' {tagged_vcf} | " \
               f"bgzip -c >{filtered_vcf} && tabix -p vcf {filtered_vcf}"
 
         _run_command(cmd)
@@ -141,7 +141,7 @@ class VcfAnnotator:
         lof_outfile = self.outfile_name.format('_genes_lof.vcf')
         lof_gene_list = get_drv_gene_list(genes_file)
         # map lof effect types to pass variants...
-        cmd = f"bcftools annotate -a {genome_loc_file} -i '{self.vcf_filter} && ({lof_types})' " \
+        cmd = f"bcftools annotate -a {genome_loc_file} -i '({self.vcf_filter}) && ({lof_types})' " \
               f"-h {self.drv_header} -c CHROM,FROM,TO,INFO/DRV {self.vcf_path} >{genes_outfile}"
         _run_command(cmd)
         with open(lof_outfile, "w") as lof_fh, open(genes_outfile, 'r') as gene_f:
