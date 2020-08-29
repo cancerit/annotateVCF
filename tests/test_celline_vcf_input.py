@@ -37,11 +37,9 @@ class TestClass():
       'lof_type': 'INFO/VC="stop_lost" || INFO/VC="start_lost" || INFO/VC="ess_splice" || INFO/VC="frameshift" || INFO/VC="nonsense"'}
   my_filter = {'format_filter': 'FILTER="PASS"'}
   # celline output
-  muts_vcf = test_out + 'celline_muts.vcf.gz'
-  lof_vcf = test_out + 'celline_genes_lof.vcf.gz'
-  drv_vcf = test_out + 'celline_drv.vcf.gz'
-
-
+  muts_vcf = f"{test_out}/celline_muts.vcf.gz"
+  lof_vcf = f"{test_out}/celline_genes_lof.vcf.gz"
+  drv_vcf = f"{test_out}/celline_drv.vcf.gz"
   my_formatter=formatter.IO_Formatter(**options_vcf_celline) 
   outdir_path=my_formatter.format(['outdir'])
 
@@ -72,9 +70,9 @@ class TestClass():
     f = self.my_formatter
     outdir_path = self.outdir_path
     with formatter.tempdir(outdir_path['outdir']) as base_dir:
-      obs_muts_vcf = base_dir + '/celline_muts.vcf.gz'
-      obs_lof_vcf = base_dir + '/celline_genes_lof.vcf.gz'
-      obs_drv_vcf = base_dir + '/celline_drv.vcf.gz'
+      obs_muts_vcf = f"{base_dir}/celline_muts.vcf.gz"
+      obs_lof_vcf = f"{base_dir}/celline_genes_lof.vcf.gz"
+      obs_drv_vcf = f"{base_dir}/celline_drv.vcf.gz"
 
       annotator.VcfAnnotator(f, base_dir)
 

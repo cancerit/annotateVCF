@@ -91,7 +91,7 @@ class IO_Formatter:
          formatter function: add default output directory
          :return:
          """
-        outputPath = self.outdir + '/out_anotatevcf/'
+        outputPath = self.outdir
         os.makedirs(outputPath, exist_ok=True)
         return outputPath
 
