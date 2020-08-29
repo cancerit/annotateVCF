@@ -4,7 +4,7 @@ import os
 import re
 import io
 import copy
-from subprocess import Popen, PIPE, STDOUT
+from subprocess import Popen, PIPE, STDOUT, TimeoutExpired
 import pkg_resources
 
 '''
@@ -150,7 +150,7 @@ class VcfAnnotator:
                 if line.startswith('#'):
                     lof_fh.write(line)
                 else:
-                    gene = get_gene.match(line)[1]
+                    gene = line.split('VD=')[1].split('|')[0]
                     # write matching LoF genes....
                     if gene in lof_gene_list:
                         lof_fh.write(line)
@@ -221,13 +221,11 @@ def _run_command(cmd):
     if not len(cmd):
         raise ValueError("Must supply at least one argument")
 
-    # To capture standard error in the result, use stderr=subprocess.STDOUT:
-    cmd_obj = Popen(cmd, stdin=None, stdout=PIPE, stderr=PIPE,
-                    shell=True, universal_newlines=True, bufsize=-1,
-                    close_fds=True, executable='/bin/bash')
     try:
         # To capture standard error in the result, use stderr=subprocess.STDOUT:
-        # logging.info("running command:{}".format(cmd))
+        cmd_obj = Popen(cmd, stdin=None, stdout=PIPE, stderr=PIPE,
+                    shell=True, universal_newlines=True, bufsize=-1,
+                    close_fds=True, executable='/bin/bash')
         (out, error) = cmd_obj.communicate()
         exit_code = cmd_obj.returncode
         if (exit_code == 0):

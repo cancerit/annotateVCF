@@ -12,8 +12,8 @@ of annotateVcf
 
 class TestClass():
   configdir = os.path.join(os.path.dirname(os.path.realpath(__file__)))
-  test_dir = configdir + '/test_input/'
-  test_out = configdir + '/test_output/'
+  test_dir = configdir + '/test_input_lof/'
+  test_out = configdir + '/test_output_lof/'
 
   options_vcf = {'vcf_file': test_dir + 'input.vcf.gz',
                    'vcf_filter': ['PASS'],
@@ -38,9 +38,9 @@ class TestClass():
       'lof_type': 'INFO/VC="stop_lost" || INFO/VC="start_lost" || INFO/VC="ess_splice" || INFO/VC="frameshift" || INFO/VC="nonsense"'}
   my_filter = {'format_filter': 'FILTER="PASS"'}
   #organoid check
-  muts_vcf = f"{test_out}/input.muts.vcf.gz"
-  lof_vcf = f"{test_out}/input.genes.lof.vcf.gz"
-  drv_vcf = f"{test_out}/input.drv.vcf.gz"
+  muts_vcf = f"{test_out}/input_muts.vcf.gz"
+  lof_vcf = f"{test_out}/input_genes_lof.vcf.gz"
+  drv_vcf = f"{test_out}/input_drv.vcf.gz"
 
   my_formatter=formatter.IO_Formatter(**options_vcf) 
   outdir_path=my_formatter.format(['outdir'])

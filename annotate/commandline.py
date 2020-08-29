@@ -52,7 +52,7 @@ def main():
                           required=False, default=info_header, help="vcf info header line and info tag")
 
     optional.add_argument("-o", "--outdir", type=str, dest="outdir",
-                          default="./", help="path to output directory")
+                          default="./out_annotatevcf", help="path to output directory")
 
     optional.add_argument("-tmp", "--keepTmp", action="store_true", dest="keepTmp",
                           default=False, help="Flag to keep temporary files")
@@ -74,6 +74,7 @@ def main():
     outdir_path = my_formatter.format(['outdir'])
     with formatter.tempdir(outdir_path['outdir']) as base_dir:
         annotator.VcfAnnotator(my_formatter, base_dir)
+
 
 if __name__ == '__main__':
     main()
