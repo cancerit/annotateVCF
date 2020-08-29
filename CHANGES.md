@@ -1,3 +1,6 @@
+## 1.1.3
+* fixed bug in gene name comparison with hyphen(-)
+* corrected typo in default directory name
 ## 1.1.2
 * added missing brackets to consider multiple filter flags 
 ## 1.1.1
