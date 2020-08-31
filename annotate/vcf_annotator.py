@@ -133,7 +133,6 @@ class VcfAnnotator:
         :param lof_types: lof consequences type string
         :return:
         """
-        get_gene = re.compile(r'.*;VD=(\w+)|.*')
         # create dummy genome locationo file to annoate LoF genes...
         genome_loc_file = self.outdir + '/genome.tab.gz'
         create_dummy_genome(self.vcf_path, genome_loc_file)
@@ -150,7 +149,7 @@ class VcfAnnotator:
                 if line.startswith('#'):
                     lof_fh.write(line)
                 else:
-                    gene = line.split('VD=')[1].split('|')[0]
+                    gene = _get_gene(line)
                     # write matching LoF genes....
                     if gene in lof_gene_list:
                         lof_fh.write(line)
@@ -171,6 +170,13 @@ class VcfAnnotator:
 
 
 # generic methods ....
+def _get_gene(line):
+    info_list = line.split("\t")[7].split(';')
+    info_dict = dict(f.split('=') for f in info_list if '=' in f)
+    gene = info_dict['VD'].split('|')[0]
+    return gene
+
+
 def get_drv_gene_list(drv_genes):
     with open(drv_genes) as f_drv:
         lof_gene_list = f_drv.read().splitlines()
