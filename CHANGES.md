@@ -1,3 +1,5 @@
+## 1.1.4
+* updated regex to get genename
 ## 1.1.3
 * fixed bug in gene name comparison with hyphen(-)
 * corrected typo in default directory name

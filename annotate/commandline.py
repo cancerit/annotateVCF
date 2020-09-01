@@ -17,7 +17,7 @@ version = pkg_resources.require("annotateVcf")[0].version
 
 
 def main():
-    usage = "\n %prog [options] -vcf input.vcf [-drv_json test.json -drv_data test_dir] "
+    usage = "\n %prog [options] -vcf input.vcf [-filter -np -gt -g -m -lof -hl -o ]"
 
     optParser = argparse.ArgumentParser(prog='annotateVcf',
                                         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
@@ -27,7 +27,7 @@ def main():
     required.add_argument("-vcf", "--vcf_file", type=str, dest="vcf_file", required=True,
                           default=None, help="vcf_file to annotate")
 
-    required.add_argument("-filter", "--vcf_filter", type=str, dest="vcf_filter", nargs='+',
+    optional.add_argument("-filter", "--vcf_filter", type=str, dest="vcf_filter", nargs='+',
                           required=False, default=['PASS'], help="Include variant sites \
                           matching vcf FILTER flag(s), multiple flags can be specified \
                           with space separator")
@@ -36,7 +36,8 @@ def main():
                           default=None, help="normal panel file to flag germline variant sites")
 
     optional.add_argument("-gt", "--germline_tag", type=str, dest="germline_tag", required=False,
-                          default="NPGL", help="tag to mark normal panel filtered variants in vcf INFO field")
+                          default="NPGL", help="tag to mark normal panel filtered variants in \
+                          vcf INFO field, only applicable when -np is set")
 
     optional.add_argument("-g", "--lof_genes", type=str, dest="lof_genes", required=False,
                           default=None, help="LoF gene name file to use annotations")

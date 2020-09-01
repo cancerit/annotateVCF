@@ -3,7 +3,7 @@ USER root
 
 MAINTAINER  cgphelp@sanger.ac.uk
 
-ENV ANNOTATEVCF_VER '1.1.3'
+ENV ANNOTATEVCF_VER '1.1.4'
 
 # install system tools
 RUN apt-get -yq update
