@@ -133,8 +133,8 @@ class VcfAnnotator:
         :param lof_types: lof consequences type string
         :return:
         """
-        get_gene = re.compile(r'.*;VD=(\w+)|.*')
         # create dummy genome locationo file to annoate LoF genes...
+        get_gene = re.compile(r'\bVD=([-\w]+)')
         genome_loc_file = self.outdir + '/genome.tab.gz'
         create_dummy_genome(self.vcf_path, genome_loc_file)
         genes_outfile = self.outfile_name.format('_genes.vcf')
@@ -150,9 +150,10 @@ class VcfAnnotator:
                 if line.startswith('#'):
                     lof_fh.write(line)
                 else:
-                    gene = line.split('VD=')[1].split('|')[0]
+                    gene = get_gene.search(line)[1]
+                    # gene = _get_gene('VD', 0))
                     # write matching LoF genes....
-                    if gene in lof_gene_list:
+                    if gene.upper() in lof_gene_list:
                         lof_fh.write(line)
         self.merge_vcf_dict['b'] = compress_vcf(lof_outfile)
 
@@ -171,9 +172,19 @@ class VcfAnnotator:
 
 
 # generic methods ....
+def _get_gene(line, gene_field, field_loc):
+    # Not used ... kept for future implementation of different annotation fields....
+    # ANN=T|missense_variant|MODERATE|AGAP005273|AGAP005273| [ e.g. 'ANN', 3]
+    # VD=TP5-TEST1-TEST2|CCDS11118.1|r.276_277insa|c.86_87insA|p.N29fs*14| [ e.g. 'VD', 0 ]
+    info_list = line.split("\t")[7].split(';')
+    info_dict = dict(f.split('=') for f in info_list if '=' in f)
+    gene = info_dict[gene_field].split('|')[field_loc]
+    return gene.upper()
+
+
 def get_drv_gene_list(drv_genes):
     with open(drv_genes) as f_drv:
-        lof_gene_list = f_drv.read().splitlines()
+        lof_gene_list = [gene.upper() for gene in f_drv.read().splitlines()]
     return lof_gene_list
 
 
