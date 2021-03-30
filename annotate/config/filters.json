@@ -1,0 +1,17 @@
+{
+  "_#comment": [
+      "Add filters to include/ exclude the variants sites to annotate using drivers",
+      "please refer filter expression formats to add any filters :  https://samtools.github.io/bcftools/bcftools.html#expressions"
+    ],
+    "include": {
+      "FILTER": "FILTER=\"PASS\"",
+      "FORMAT": "FORMAT/VAF[*] > 0.15",
+      "INFO": "INFO/VC=\"stop_lost,start_lost,ess_splice,frameshift,nonsense\"",
+      "INFO_FLAG_GERMLINE": "NPGL"
+    },
+
+    "exclude": {
+      "None": null
+    }
+}
+

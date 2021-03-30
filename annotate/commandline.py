@@ -11,6 +11,7 @@ import logging.config
 configdir = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'config/')
 log_config = configdir + 'logging.conf'
 info_header = configdir + 'info.header'
+filters_json = configdir + 'filters.json'
 logging.config.fileConfig(log_config)
 log = logging.getLogger(__name__)
 version = pkg_resources.require("annotateVcf")[0].version
@@ -27,27 +28,20 @@ def main():
     required.add_argument("-vcf", "--vcf_file", type=str, dest="vcf_file", required=True,
                           default=None, help="vcf_file to annotate")
 
-    optional.add_argument("-filter", "--vcf_filter", type=str, dest="vcf_filter", nargs='+',
-                          required=False, default=['PASS'], help="Include variant sites \
-                          matching vcf FILTER flag(s), multiple flags can be specified \
-                          with space separator")
+    optional.add_argument("-filters", "--vcf_filters", type=str, dest="vcf_filters", required=False,
+                          default=filters_json, help="Include vcf filters \
+                          configuration file in jason (param:value) format \
+                          [please refer bcftools documentation for more details \
+                           : http://samtools.github.io/bcftools/bcftools.html#expressions]")
 
     optional.add_argument("-np", "--normal_panel", type=str, dest="normal_panel", required=False,
                           default=None, help="normal panel file to flag germline variant sites")
-
-    optional.add_argument("-gt", "--germline_tag", type=str, dest="germline_tag", required=False,
-                          default="NPGL", help="tag to mark normal panel filtered variants in \
-                          vcf INFO field, only applicable when -np is set")
 
     optional.add_argument("-g", "--lof_genes", type=str, dest="lof_genes", required=False,
                           default=None, help="LoF gene name file to use annotations")
 
     optional.add_argument("-m", "--mutations", type=str, dest="mutations", required=False,
                           default=None, help="driver mutations file to use for driver variant annotations")
-
-    optional.add_argument("-lof", "--lof_type", type=str, dest="lof_type", nargs='+', metavar='N',
-                          required=False, default=["stop_lost", "start_lost", "ess_splice",
-                                                   "frameshift", "nonsense"], help="Loss of function effect types")
 
     optional.add_argument("-hl", "--header_line", type=str, dest="header_line",
                           required=False, default=info_header, help="vcf info header line and info tag")

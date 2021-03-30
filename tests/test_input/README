@@ -1,0 +1,11 @@
+annotateVcf -vcf celline.vcf.gz -g lof_genes_v1.0.txt -m driver_mutations_sorted.tsv.gz -np np.vcf.gz -o test_output -t
+annotateVcf -vcf input.vcf.gz -g lof_genes_v1.0.txt -m driver_mutations_sorted.tsv.gz -o test_output -t -filters filters.json
+bcftools query -f '%CHROM\t%END\n' ../celline.vcf.gz >cell_linergions.txt
+
+bcftools view  /lustre/scratch117/casm/team215/sb43/user_query/cell_line_vafs_comparison/vafcorrect_broad_wgs/vafcorrect_out/output/PDv38is_wgs/snp/PDv38is_wgs_ACH-000879_snp_vaf.vcf.gz -R cell_linergions.txt | bgzip -c >../celline.vcf.gz
+
+bcftools query -f '%CHROM\t%END\n' ../input.vcf.gz >org_pos.txt
+
+bcftools view  /lustre/scratch117/casm/team215/sb43/organoid_analysis/WGS/p2126/out_vafcorrect/output/WTSI-COLO_005_b/snp/WTSI-COLO_005_b_WTSI-COLO_005_a_DNA_snp_vaf.vcf.gz -R org_pos.txt >input.vcf
+
+

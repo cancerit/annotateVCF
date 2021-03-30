@@ -41,8 +41,8 @@
 ##INFO=<ID=VC,Number=.,Type=String,Description="Variant consequence based on the Vagrent Default Annotation">
 ##SAMPLE=<ID=NORMAL,Description="Normal",Accession=.,Platform=ILLUMINA,Protocol=WGS,SampleName=WTSI-COLO_005_b,Source=.>
 ##SAMPLE=<ID=TUMOUR,Description="Tumour",Accession=.,Platform=ILLUMINA,Protocol=WGS,SampleName=WTSI-COLO_005_1pre,Source=.>
-##cavemanVersion=1.13.14
-##cgpAnalysisProc_20190930.1=5346618
+##cavemanVersion=1.14.1
+##cgpAnalysisProc_20200116.1=5524663
 ##contig=<ID=chr1,assembly=NCBI38,length=248956422,species=Human>
 ##contig=<ID=chr2,assembly=NCBI38,length=242193529,species=Human>
 ##contig=<ID=chr3,assembly=NCBI38,length=198295559,species=Human>
@@ -68,15 +68,17 @@
 ##contig=<ID=chrX,assembly=NCBI38,length=156040895,species=Human>
 ##contig=<ID=chrY,assembly=NCBI38,length=57227415,species=Human>
 ##contig=<ID=chrM,assembly=NCBI38,length=16569,species=Human>
-##fileDate=20190924
+##fileDate=20200115
 ##reference=/lustre/scratch119/casm/team78pipelines/canpipe/live/data/analysis/2126_2577635/CaVEMan/genome.fa
-##source_20190930.1=AnnotateVcf.pl
-##vcfProcessLog=<InputVCF=<.>,InputVCFSource=<CaVEMan>,InputVCFParam=<REF_BIAS=0.95,PRIOR_MUT_RATE=6e-06,NORMAL_CONTAMINATION=0.032013,MUT_CUTOFF=0.8,PRIOR_SNP_RATE=0.0001,SNP_CUTOFF=0.95>>
-##vcfProcessLog_20190930.1=<InputVCF=<split.vcf.1>,InputVCFSource=<FlagCaVEManVCF.pl>,InputVCFVer=<1.8.8>,InputVCFParam=<umv=unmatched_v5,loud=.,l=2000,b=flagging,sa=.,f=split.vcf.1,c=flag.vcf.config.ini,n=2543786.bam,s=HUMAN,h=.,ref=genome.fa.fai,p=5346618,m=2577635.bam,t=WGS,idx=.,ab=.,sp=.,g=2577635.germline.bed.gz,o=flagged_split.vcf.1,v=flag.to.vcf.convert.ini>>
-##vcfProcessLog_20190930.2=<InputVCF=<>,InputVCFSource=<AnnotateVcf.pl>,InputVCFVer=<3.5.0>,InputVCFParam=<cache=/lustre/scratch119/casm/team78pipelines/canpipe/live/ref/human/GRCh38_full_analysis_set_plus_decoy_hla/vagrent/e91/vagrent.cache.gz,output=/lustre/scratch119/casm/team78pipelines/canpipe/live/data/analysis/2126_2577635/Vagrent_CaVEMan/WTSI-COLO_005_1pre.vcf,species=Human,input=/lustre/scratch119/casm/team78pipelines/canpipe/live/data/stage/2126_2577635/2577635.caveman_c.flag.vcf.gz,tabix=1,assembly=NCBI38>>
+##source_20200119.1=AnnotateVcf.pl
+##vcfProcessLog=<InputVCF=<.>,InputVCFSource=<CaVEMan>,InputVCFParam=<REF_BIAS=0.95,SNP_CUTOFF=0.95,MUT_CUTOFF=0.8,NORMAL_CONTAMINATION=0,PRIOR_SNP_RATE=0.0001,PRIOR_MUT_RATE=6e-06>>
+##vcfProcessLog_20200116.1=<InputVCF=<split.vcf.1>,InputVCFSource=<FlagCaVEManVCF.pl>,InputVCFVer=<1.8.9>,InputVCFParam=<v=flag.to.vcf.convert.ini,o=flagged_split.vcf.1,ab=.,umv=unmatched_v5,idx=.,l=2000,h=.,sp=.,s=HUMAN,n=2543786.bam,c=flag.vcf.config.ini,m=2577635.bam,t=WGS,ref=genome.fa.fai,loud=.,f=split.vcf.1,g=2577635.germline.bed.gz,b=flagging,p=5524663,sa=.>>
+##vcfProcessLog_20200119.1=<InputVCF=<>,InputVCFSource=<AnnotateVcf.pl>,InputVCFVer=<3.5.2>,InputVCFParam=<species=Human,output=/lustre/scratch119/casm/team78pipelines/canpipe/live/data/analysis/2126_2577635/Vagrent_CaVEMan/WTSI-COLO_005_1pre.vcf,tabix=1,input=/lustre/scratch119/casm/team78pipelines/canpipe/live/data/stage/2126_2577635/2577635.caveman_c.flag.vcf.gz,assembly=NCBI38,cache=/lustre/scratch119/casm/team78pipelines/canpipe/live/ref/human/GRCh38_full_analysis_set_plus_decoy_hla/vagrent/e91/vagrent.cache.gz>>
+##bcftools_viewVersion=1.12+htslib-1.12
+##bcftools_viewCommand=view -R lof_pos.txt /lustre/scratch117/casm/team215/sb43/organoid_analysis/WGS/p2126/out_vafcorrect//WTSI-COLO_005_1pre.caveman_c.annot.vcf.gz; Date=Tue Mar 30 14:23:07 2021
 ##INFO=<ID=DRV,Number=.,Type=String,Description="Driver Variant Class">
-##bcftools_annotateVersion=1.10.2-64-gf66af73+htslib-1.10.2-85-g16f62c5
-##bcftools_annotateCommand=annotate -a /nfs/users/nfs_s/sb43/scripts/annotatevcf_github/tests/tmpout/tmp_jp6ts6o/genome.tab.gz -i '(FILTER="PASS") && (INFO/VC="stop_lost" || INFO/VC="start_lost" || INFO/VC="ess_splice" || INFO/VC="frameshift" || INFO/VC="nonsense")' -h /nfs/users/nfs_s/sb43/scripts/annotatevcf_github/tests/test_input_lof/info.header -c CHROM,FROM,TO,INFO/DRV /nfs/users/nfs_s/sb43/scripts/annotatevcf_github/tests/test_input_lof/input.vcf.gz; Date=Sat Aug 29 15:57:54 2020
+##bcftools_annotateVersion=1.12+htslib-1.12
+##bcftools_annotateCommand=annotate -a test_output/tmpdtvu0kq9/genome.tab.gz -i '(FILTER="PASS" ) && ( INFO/VC="stop_lost,start_lost,ess_splice,frameshift,nonsense")' -h /nfs/users/nfs_s/sb43/scripts/annotatevcf_github/annotate/config/info.header -c CHROM,FROM,TO,INFO/DRV input.vcf.gz; Date=Tue Mar 30 16:55:58 2021
 #CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO	FORMAT	NORMAL	TUMOUR
-chr15	44715437	781d409c-df72-11e9-aae8-d600ec72acc9	C	T	.	PASS	DP=77;MP=1;GP=6.4e-14;TG=CC/TTTTT;TP=0.96;SG=CC/CTTTT;SP=0.036;ASRD=0.97;CLPM=0;ASMD=146;VT=Sub;VD=B2M-TEST|CCDS10113.1|r.152c>u|c.82C>T|p.Q28*|protein_coding:exon:CDS:substitution:codon_variant:stop_gained|SO:0000010:SO:0000147:SO:0000316:SO:1000002:SO:0001581:SO:0001587;VC=nonsense;VW=B2M|CCDS10113.1|r.152c>u|c.82C>T|p.Q28*|protein_coding:exon:CDS:substitution:codon_variant:stop_gained|SO:0000010:SO:0000147:SO:0000316:SO:1000002:SO:0001581:SO:0001587;DRV=LoF	GT:FAZ:FCZ:FGZ:FTZ:RAZ:RCZ:RGZ:RTZ:PM	0|0:0:33:0:0:0:16:1:0:0	1|1:0:0:0:7:0:1:0:19:0.96
-chr5	112815507	78d23984-df72-11e9-aae8-d600ec72acc9	C	T	.	PASS	DP=74;MP=1;GP=3.7e-15;TG=CC/TTTTT;TP=0.87;SG=CC/CTTTT;SP=0.13;ASRD=0.97;CLPM=0;ASMD=146;VT=Sub;VD=APC-TEST|CCDS4107.1|r.903c>u|c.847C>T|p.R283*|protein_coding:exon:CDS:substitution:codon_variant:stop_gained|SO:0000010:SO:0000147:SO:0000316:SO:1000002:SO:0001581:SO:0001587;VC=nonsense;VW=APC|CCDS4107.1|r.903c>u|c.847C>T|p.R283*|protein_coding:exon:CDS:substitution:codon_variant:stop_gained|SO:0000010:SO:0000147:SO:0000316:SO:1000002:SO:0001581:SO:0001587;DRV=LoF	GT:FAZ:FCZ:FGZ:FTZ:RAZ:RCZ:RGZ:RTZ:PM	0|0:0:28:0:0:0:25:0:0:0	1|1:0:0:0:11:0:1:0:9:0.95
+chr15	44715437	38c39ba0-37d6-11ea-a6a1-4d80907df7c2	C	T	.	PASS	DP=77;MP=1;GP=6.8e-14;TG=CC/TT;TP=1;SG=CC/CT;SP=6.5e-06;ASRD=0.97;CLPM=0;ASMD=146;VT=Sub;VD=B2M|CCDS10113.1|r.152c>u|c.82C>T|p.Q28*|protein_coding:exon:CDS:substitution:codon_variant:stop_gained|SO:0000010:SO:0000147:SO:0000316:SO:1000002:SO:0001581:SO:0001587;VC=nonsense;VW=B2M|CCDS10113.1|r.152c>u|c.82C>T|p.Q28*|protein_coding:exon:CDS:substitution:codon_variant:stop_gained|SO:0000010:SO:0000147:SO:0000316:SO:1000002:SO:0001581:SO:0001587;DRV=LoF	GT:FAZ:FCZ:FGZ:FTZ:RAZ:RCZ:RGZ:RTZ:PM	0|0:0:33:0:0:0:16:1:0:0	1|1:0:0:0:7:0:1:0:19:0.96
+chr5	112815507	3948d8a6-37d6-11ea-a6a1-4d80907df7c2	C	T	.	PASS	DP=74;MP=1;GP=3.8e-15;TG=CC/TT;TP=1;SG=CC/CT;SP=0.00055;ASRD=0.97;CLPM=0;ASMD=146;VT=Sub;VD=APC|CCDS4107.1|r.903c>u|c.847C>T|p.R283*|protein_coding:exon:CDS:substitution:codon_variant:stop_gained|SO:0000010:SO:0000147:SO:0000316:SO:1000002:SO:0001581:SO:0001587;VC=nonsense;VW=APC|CCDS4107.1|r.903c>u|c.847C>T|p.R283*|protein_coding:exon:CDS:substitution:codon_variant:stop_gained|SO:0000010:SO:0000147:SO:0000316:SO:1000002:SO:0001581:SO:0001587;DRV=LoF	GT:FAZ:FCZ:FGZ:FTZ:RAZ:RCZ:RGZ:RTZ:PM	0|0:0:28:0:0:0:25:0:0:0	1|1:0:0:0:11:0:1:0:9:0.95

@@ -16,14 +16,12 @@ class TestClass():
   test_out = configdir + '/test_output/'
 
   options_vcf = {'vcf_file': test_dir + 'input.vcf.gz',
-                   'vcf_filter': ['PASS'],
                    'lof_genes': test_dir + 'lof_genes_v1.0.txt',
                    'mutations': test_dir + 'driver_mutations_sorted.tsv.gz',
-                   'lof_type': ["stop_lost","start_lost","ess_splice","frameshift","nonsense"],
+                   'vcf_filters': test_dir + 'filters.json',
                    'header_line': test_dir + 'info.header',
                    'outdir': test_dir + "/tmpout",
                    'keepTmp': False,
-                   'germline_tag': 'NPGL',
                    'normal_panel': None
                    }
 
@@ -34,13 +32,13 @@ class TestClass():
                                 }}
   file_dict = {'input_status': {'mutations': True, 'lof_genes': True,
                                 'normal_panel': False, 'vcf_file': True}}
-  lof_type = {
-      'lof_type': 'INFO/VC="stop_lost" || INFO/VC="start_lost" || INFO/VC="ess_splice" || INFO/VC="frameshift" || INFO/VC="nonsense"'}
-  my_filter = {'format_filter': 'FILTER="PASS"'}
+  info_filter = "INFO/VC=\"stop_lost,start_lost,ess_splice,frameshift,nonsense\""
+  format_filter = "FORMAT/VAF[*] > 0.15"
+  filters_filter = "FILTER=\"PASS\""
   #organoid check
-  muts_vcf = f"{test_out}/input.muts.vcf.gz"
-  lof_vcf = f"{test_out}/input.genes.lof.vcf.gz"
-  drv_vcf = f"{test_out}/input.drv.vcf.gz"
+  muts_vcf = f"{test_out}/input_muts.vcf.gz"
+  lof_vcf = f"{test_out}/input_genes_lof.vcf.gz"
+  drv_vcf = f"{test_out}/input_drv.vcf.gz"
 
   my_formatter=formatter.IO_Formatter(**options_vcf) 
   outdir_path=my_formatter.format(['outdir'])
@@ -56,15 +54,24 @@ class TestClass():
     f = self.my_formatter
     assert file_dict == f.format(['input_status']),'test_file_input test OK'
 
-  def test_matched_lof_format(self):
-    lof_type=self.lof_type
+  def test_celline_info_filter(self):
     f = self.my_formatter
-    assert lof_type == f.format(['lof_type']),'test_lof_format test OK'
+    vcf_filters = f.format(['vcf_filters'])
+    vcf_filter_params = vcf_filters.get('vcf_filters', None)
+    assert self.info_filter == vcf_filter_params['INFO'],'test_INFO test OK'
 
-  def test_matched_filter_format(self):
-    my_filter=self.my_filter
+  def test_celline_format_filter(self):
     f = self.my_formatter
-    assert my_filter == f.format(['format_filter']),'test_filter_format test OK'
+    vcf_filters = f.format(['vcf_filters'])
+    vcf_filter_params = vcf_filters.get('vcf_filters', None)
+    assert self.format_filter == vcf_filter_params['FORMAT'],'test_FORMAT test OK'
+
+  def test_celline_filter_filters(self):
+    f = self.my_formatter
+    vcf_filters = f.format(['vcf_filters'])
+    vcf_filter_params = vcf_filters.get('vcf_filters', None)
+    assert self.filters_filter == vcf_filter_params['FILTER'],'test_FILTER test OK'
+
   def chek_matched_outdir(slef):
        self.test_dir + 'tmpout' == self.outdir_path 
 
