@@ -1,7 +1,7 @@
 {
   "_#comment": [
       "Add filters to include/ exclude the variants sites to annotate using drivers",
-      "please refer filter expression formats to add any filters :  https://samtools.github.io/bcftools/bcftools.html#expressions"
+      "please refer filter expression formats to add new filters :  https://samtools.github.io/bcftools/bcftools.html#expressions"
     ],
     "include": {
       "FILTER": "FILTER=\"PASS\"",

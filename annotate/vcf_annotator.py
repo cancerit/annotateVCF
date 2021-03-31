@@ -181,7 +181,7 @@ def _combine_filters(filter_array):
     :return: return formatted filtering parameters if present otherwise () equivalent to no filter...
     """
     if any(filter_array):
-        return f"({' ) && ( '.join(filter(None, filter_array))})"
+        return f"({') && ('.join(filter(None, filter_array))})"
     else:
         return "()"
 
