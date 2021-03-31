@@ -12,7 +12,7 @@ config = {
     'python_requires': '>= 3.6',
     'install_requires': ['tzlocal'],
     'packages': ['annotate'],
-    'package_data': {'annotate':['config/*.conf','config/*.header']},
+    'package_data': {'annotate':['config/*.conf','config/*.header','config/*.json']},
     'entry_points': {
         'console_scripts': ['annotateVcf=annotate.commandline:main'],
     }

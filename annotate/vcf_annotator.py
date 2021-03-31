@@ -26,7 +26,6 @@ class VcfAnnotator:
         self.outdir = basedir
         self.status_dict = f.format(['input_status'])
         self.input_data = f.format(['vcf_file'])
-
         # set input vcf parameters ...
         self._set_input_vcf(self.input_data)
         self.drv_header = f.header_line
@@ -42,24 +41,27 @@ class VcfAnnotator:
         :return:
         """
         status = self.status_dict['input_status']
-        vcf_filters = f.format(['format_filter'])
-        self.vcf_filter = vcf_filters['format_filter']
+        vcf_filters = f.format(['vcf_filters'])
+        vcf_filter_params = vcf_filters.get('vcf_filters', None)
+        self.info_filters = vcf_filter_params['INFO']
+        self.format_filters = vcf_filter_params['FORMAT']
+        self.filter_filters = vcf_filter_params['FILTER']
+        self.flag_germline = vcf_filter_params['INFO_FLAG_GERMLINE']
         run_status = False
         a_type = ['normal_panel', 'mutations', 'lof_genes']
 
         for analysis in a_type:
             if status[analysis] and analysis == 'normal_panel':
-                logging.info(f"Tagging germline variants with INFO tag:{f.np_tag}")
-                self.tag_germline_vars(f.np_tag, f.np_vcf)
+                logging.info(f"Tagging germline variants with INFO tag:{self.flag_germline}")
+                self.tag_germline_vars(f.np_vcf)
                 run_status = True
             if status[analysis] and analysis == 'mutations':
                 logging.info("Annotating driver mutations with INFO field:DRV=<consequence(s)>")
                 self.annot_drv_muts(f.muts_file)
                 run_status = True
             if status[analysis] and analysis == 'lof_genes':
-                logging.info("Annotating LoF genes with INFO filed:DRV=LoF")
-                lof_types = f.format(['lof_type'])
-                self.annotate_lof_genes(f.genes_file, lof_types['lof_type'])
+                logging.info("Annotating LoF genes with INFO field:DRV=LoF")
+                self.annotate_lof_genes(f.genes_file)
                 run_status = True
         if run_status:
             logging.info("concatenating results")
@@ -79,24 +81,23 @@ class VcfAnnotator:
         self.vcf_name = input_data['vcf_file']['name']
         self.outfile_name = self.outdir + '/' + self.vcf_name + '{}'
 
-    def tag_germline_vars(self, np_tag, np_vcf):
+    def tag_germline_vars(self, np_vcf):
         """
-        use normal panel to tag germline variants and created filtered vcf file to use in
+        use normal panel to tag germline variants and create filtered vcf file to use in
         subsequent driver annotation steps ...
         sets filtered vcf as new user input parameter for downstream analysis
         add tagged and filtered vcf files to concat in final step
-        :param np_tag:
         :param np_vcf:
         :return:
         """
         tagged_vcf = self.outfile_name.format('_np.vcf.gz')
         filtered_vcf = self.outfile_name.format('_np_filtered.vcf.gz')
 
-        cmd = f"bcftools annotate -a {np_vcf} -i '{self.vcf_filter}'  -m '{np_tag}'" \
+        cmd = f"bcftools annotate -a {np_vcf} -i '{self.filter_filters}'  -m '{self.flag_germline}'" \
               f" {self.vcf_path} | bgzip -c >{tagged_vcf} && tabix -p vcf {tagged_vcf}"
         _run_command(cmd)
 
-        cmd = f"bcftools  view -i '({self.vcf_filter}) && {np_tag}=0' {tagged_vcf} | " \
+        cmd = f"bcftools  view -i '{self.flag_germline}=0' {tagged_vcf} | " \
               f"bgzip -c >{filtered_vcf} && tabix -p vcf {filtered_vcf}"
 
         _run_command(cmd)
@@ -118,7 +119,9 @@ class VcfAnnotator:
         :return:
         """
         muts_outfile = self.outfile_name.format('_muts.vcf.gz')
-        cmd = f"bcftools annotate -i '{self.vcf_filter}' --merge-logic DRV:unique" \
+        combined_filter = _combine_filters([self.filter_filters, self.format_filters])
+        cmd = f"bcftools annotate -i '{combined_filter}'" \
+              f" --merge-logic DRV:unique" \
               f" -a {muts_file} -h {self.drv_header} " \
               f"-c CHROM,FROM,TO,INFO/DRV {self.vcf_path} |" \
               f"bcftools annotate  -i 'DRV!=\".\" && DRV[*]==VC' | " \
@@ -126,11 +129,10 @@ class VcfAnnotator:
         _run_command(cmd)
         self.merge_vcf_dict['a'] = muts_outfile
 
-    def annotate_lof_genes(self, genes_file, lof_types):
+    def annotate_lof_genes(self, genes_file):
         """
         annotate vcf using known LoF genes
         :param genes_file: lof gene names file
-        :param lof_types: lof consequences type string
         :return:
         """
         # create dummy genome locationo file to annoate LoF genes...
@@ -140,9 +142,10 @@ class VcfAnnotator:
         genes_outfile = self.outfile_name.format('_genes.vcf')
         lof_outfile = self.outfile_name.format('_genes_lof.vcf')
         lof_gene_list = get_drv_gene_list(genes_file)
-        # map lof effect types to pass variants...
-        cmd = f"bcftools annotate -a {genome_loc_file} -i '({self.vcf_filter}) && ({lof_types})' " \
+        combined_filter = _combine_filters([self.filter_filters, self.format_filters, self.info_filters])
+        cmd = f"bcftools annotate -a {genome_loc_file} -i '{combined_filter}' " \
               f"-h {self.drv_header} -c CHROM,FROM,TO,INFO/DRV {self.vcf_path} >{genes_outfile}"
+
         _run_command(cmd)
         with open(lof_outfile, "w") as lof_fh, open(genes_outfile, 'r') as gene_f:
             for line in gene_f:
@@ -172,6 +175,17 @@ class VcfAnnotator:
 
 
 # generic methods ....
+def _combine_filters(filter_array):
+    """
+    :param filter_array: filtring paramters
+    :return: return formatted filtering parameters if present otherwise () equivalent to no filter...
+    """
+    if any(filter_array):
+        return f"({') && ('.join(filter(None, filter_array))})"
+    else:
+        return "()"
+
+
 def _get_gene(line, gene_field, field_loc):
     # Not used ... kept for future implementation of different annotation fields....
     # ANN=T|missense_variant|MODERATE|AGAP005273|AGAP005273| [ e.g. 'ANN', 3]
