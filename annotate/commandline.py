@@ -30,7 +30,7 @@ def main():
 
     optional.add_argument("-filters", "--vcf_filters", type=str, dest="vcf_filters", required=False,
                           default=filters_json, help="Include vcf filters \
-                          configuration file in jason (param:value) format \
+                          configuration file in json (param:value) format \
                           [please refer bcftools documentation for more details \
                            : http://samtools.github.io/bcftools/bcftools.html#expressions]")
 
