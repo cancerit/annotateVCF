@@ -41,13 +41,13 @@ Various exceptions can occur for malformed input files.
  * ```input_vcf.gz```  snv or indel vcf file annotated using [VAGrENT]
  * ```normal_panel.vcf.gz```  normal panel to tag germline variants [VAGrENT]
  * ```lof_genes.txt ``` list of known loss of function [LoF] genes along with previous gene symbols ( to make sure all gene synonyms were matched with input vcf)
- * ```consequence types``` lof consequence types to restrict driver gene annotations  
+ * ```filters.json``` filters to be applied during driver annotations ( see default file ```filters.josn``` in config  folder)
  * ```driver_mutations.tsv.gz``` tab separated driver mutations along with consequence type 
  * ```info.header``` vcf header INFO line 
 
 ### outputFormat
 
- * ```<input>.drv.vcf.gz ``` output vcf file with DRV info field and consequence type if known, LoF in case annotated using LoF gene list.
+ * ```<input>_drv.vcf.gz ``` output vcf file with DRV info field and consequence type if known, LoF in case annotated using LoF gene list.
 
 ## INSTALL
 Installing via `pip install`. Simply execute with the path to the compiled 'whl' found on the [release page][annotateVcf-releases]:

@@ -29,6 +29,8 @@ MANIFEST
 out*
 test.txt
 tmpout
+tests/test_*/*.vcf
+*.log
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
