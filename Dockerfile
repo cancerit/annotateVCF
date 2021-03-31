@@ -3,7 +3,7 @@ USER root
 
 MAINTAINER  cgphelp@sanger.ac.uk
 
-ENV ANNOTATEVCF_VER '1.1.4'
+ENV ANNOTATEVCF_VER '1.2.0'
 
 # install system tools
 RUN apt-get -yq update
@@ -40,7 +40,7 @@ RUN pip3 install --install-option="--prefix=$CGP_OPT/python-lib" dist/$(ls -1 di
 FROM ubuntu:20.04
 
 LABEL uk.ac.sanger.cgp="Cancer Genome Project, Wellcome Sanger Institute" \
-      version="1.0.0" \
+      version="1.2.0" \
       description="Tool to perform vcf file annotation"
 
 ### security upgrades and cleanup
