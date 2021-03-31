@@ -1,3 +1,7 @@
+
+## 1.2.0
+* Added json config paramter to accept filtering paramaters
+* removed commandline paramaters that are now read from config file
 ## 1.1.4
 * updated regex to get genename
 ## 1.1.3
