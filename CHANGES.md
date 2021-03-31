@@ -1,4 +1,6 @@
 
+## 1.2.1
+* updated documentation and README
 ## 1.2.0
 * Added json config paramter to accept filtering paramaters
 * removed commandline paramaters that are now read from config file

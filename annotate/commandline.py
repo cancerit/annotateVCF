@@ -29,8 +29,7 @@ def main():
                           default=None, help="vcf_file to annotate")
 
     optional.add_argument("-filters", "--vcf_filters", type=str, dest="vcf_filters", required=False,
-                          default=filters_json, help="Include vcf filters \
-                          configuration file in json (param:value) format \
+                          default=filters_json, help="Include vcf filters file in json format \
                           [please refer bcftools documentation for more details \
                            : http://samtools.github.io/bcftools/bcftools.html#expressions]")
 
@@ -38,7 +37,7 @@ def main():
                           default=None, help="normal panel file to flag germline variant sites")
 
     optional.add_argument("-g", "--lof_genes", type=str, dest="lof_genes", required=False,
-                          default=None, help="LoF gene name file to use annotations")
+                          default=None, help="Known LoF genes file to annotate LoF variants")
 
     optional.add_argument("-m", "--mutations", type=str, dest="mutations", required=False,
                           default=None, help="driver mutations file to use for driver variant annotations")
@@ -69,7 +68,6 @@ def main():
     outdir_path = my_formatter.format(['outdir'])
     with formatter.tempdir(outdir_path['outdir']) as base_dir:
         annotator.VcfAnnotator(my_formatter, base_dir)
-
 
 if __name__ == '__main__':
     main()
