@@ -42,6 +42,9 @@ def main():
     optional.add_argument("-m", "--mutations", type=str, dest="mutations", required=False,
                           default=None, help="driver mutations file to use for driver variant annotations")
 
+    optional.add_argument("-cpv", "--cancer_predisposition", type=str, dest="cancer_predisposition", required=False,
+                          default=None, help="cancer predisposition variants file to annotate germline predispostion variants")
+
     optional.add_argument("-hl", "--header_line", type=str, dest="header_line",
                           required=False, default=info_header, help="vcf info header line and info tag")
 
