@@ -39,15 +39,17 @@ Various exceptions can occur for malformed input files.
 ### inputFormat
 
  * ```input_vcf.gz```  snv or indel vcf file annotated using [VAGrENT]
- * ```normal_panel.vcf.gz```  normal panel to tag germline variants [VAGrENT]
+ * ```normal_panel.vcf.gz```  normal panel to tag germline variants
  * ```lof_genes.txt ``` list of known loss of function [LoF] genes along with previous gene symbols ( to make sure all gene synonyms were matched with input vcf)
+ * ```cpg_variants.tsv.gz``` list of variants in cancer predisposition genes to tag germline predisposition variants
  * ```filters.json``` filters to be applied during driver annotations ( see default file ```filters.josn``` in config  folder)
  * ```driver_mutations.tsv.gz``` tab separated driver mutations along with consequence type 
- * ```info.header``` vcf header INFO line 
+ * ```info.header``` vcf header INFO line showing driver and cancer predisposition annotations...
 
 ### outputFormat
 
- * ```<input>_drv.vcf.gz ``` output vcf file with DRV info field and consequence type if known, LoF in case annotated using LoF gene list.
+ * ```<input>_drv.vcf.gz ``` output vcf file with DRV info field and consequence type if known, LoF in case annotated using LoF gene list, 
+CPV info field is added if variants in cancer predisposition genes are provided.
 
 ## INSTALL
 Installing via `pip install`. Simply execute with the path to the compiled 'whl' found on the [release page][annotateVcf-releases]:
