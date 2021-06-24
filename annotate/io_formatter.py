@@ -62,7 +62,8 @@ class IO_Formatter:
         :return: status dict
         """
         input_status = check_inputs({'vcf_file': self.vcf_file, 'normal_panel': self.np_vcf,
-                                     'mutations': self.muts_file, 'lof_genes': self.genes_file, 'cancer_predisposition': self.cpv_file})
+                                     'mutations': self.muts_file, 'lof_genes': self.genes_file,
+                        'cancer_predisposition': self.cpv_file})
         if input_status['vcf_file'] is None:
             sys.exit("Please provide input vcf file")
         return input_status

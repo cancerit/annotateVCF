@@ -67,7 +67,6 @@ class VcfAnnotator:
                 logging.info("Annotating germline variants with INFO field:CPV=<consequence(s)")
                 self.annotate_cpv(f.cpv_file)
                 run_status = True
-               
         if run_status:
             logging.info("concatenating results")
             self.concat_results()

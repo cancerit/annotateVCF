@@ -1,0 +1,2 @@
+##INFO=<ID=DRV,Number=., Type=String, Description="Driver Variant Class">
+##INFO=<ID=CPV,Number=., Type=String, Description="Cancer Predisposition Variant">
