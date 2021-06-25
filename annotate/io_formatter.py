@@ -24,6 +24,7 @@ class IO_Formatter:
         self.vcf_file = kwargs['vcf_file']
         self.genes_file = kwargs.get('lof_genes', None)
         self.muts_file = kwargs.get('mutations', None)
+        self.cpv_file = kwargs.get('cancer_predisposition', None)
         self.np_vcf = kwargs.get('normal_panel', None)
         self.header_line = kwargs['header_line']
         self.outdir = kwargs['outdir']
@@ -61,7 +62,8 @@ class IO_Formatter:
         :return: status dict
         """
         input_status = check_inputs({'vcf_file': self.vcf_file, 'normal_panel': self.np_vcf,
-                                     'mutations': self.muts_file, 'lof_genes': self.genes_file})
+                                     'mutations': self.muts_file, 'lof_genes': self.genes_file,
+                        'cancer_predisposition': self.cpv_file})
         if input_status['vcf_file'] is None:
             sys.exit("Please provide input vcf file")
         return input_status

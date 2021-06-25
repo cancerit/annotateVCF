@@ -48,7 +48,7 @@ class VcfAnnotator:
         self.filter_filters = vcf_filter_params['FILTER']
         self.flag_germline = vcf_filter_params['INFO_FLAG_GERMLINE']
         run_status = False
-        a_type = ['normal_panel', 'mutations', 'lof_genes']
+        a_type = ['normal_panel', 'mutations', 'lof_genes', 'cancer_predisposition']
 
         for analysis in a_type:
             if status[analysis] and analysis == 'normal_panel':
@@ -62,6 +62,10 @@ class VcfAnnotator:
             if status[analysis] and analysis == 'lof_genes':
                 logging.info("Annotating LoF genes with INFO field:DRV=LoF")
                 self.annotate_lof_genes(f.genes_file)
+                run_status = True
+            if status[analysis] and analysis == 'cancer_predisposition':
+                logging.info("Annotating germline variants with INFO field:CPV=<consequence(s)")
+                self.annotate_cpv(f.cpv_file)
                 run_status = True
         if run_status:
             logging.info("concatenating results")
@@ -123,9 +127,9 @@ class VcfAnnotator:
         cmd = f"bcftools annotate -i '{combined_filter}'" \
               f" --merge-logic DRV:unique" \
               f" -a {muts_file} -h {self.drv_header} " \
-              f"-c CHROM,FROM,TO,INFO/DRV {self.vcf_path} |" \
-              f"bcftools annotate  -i 'DRV!=\".\" && DRV[*]==VC' | " \
-              f"bgzip -c >{muts_outfile} && tabix -f -p vcf {muts_outfile}"
+              f"-c CHROM,FROM,TO,INFO/DRV {self.vcf_path} " \
+              f" | bcftools annotate  -i 'INFO/DRV!=\".\" && INFO/DRV[*]==INFO/VC' " \
+              f" | bgzip -c >{muts_outfile} && tabix -f -p vcf {muts_outfile}"
         _run_command(cmd)
         self.merge_vcf_dict['a'] = muts_outfile
 
@@ -160,9 +164,27 @@ class VcfAnnotator:
                         lof_fh.write(line)
         self.merge_vcf_dict['b'] = compress_vcf(lof_outfile)
 
+    def annotate_cpv(self, cpv_file):
+        """
+        annotate vcf using cancer predisposition variant set
+        add annotated vcf file to concat in final step
+        :param cpv_file:
+        :return:
+        """
+        cpv_outfile = self.outfile_name.format('_cpv.vcf.gz')
+        combined_filter = _combine_filters([self.filter_filters, self.format_filters])
+        cmd = f"bcftools annotate -i '{combined_filter}'" \
+              f" --merge-logic CPV:unique" \
+              f" -a {cpv_file} -h {self.drv_header} " \
+              f"-c CHROM,FROM,TO,INFO/CPV {self.vcf_path} " \
+              f" | bcftools annotate  -i 'INFO/CPV!=\".\" && INFO/CPV[*]==INFO/VC'  " \
+              f" | bgzip -c >{cpv_outfile} && tabix -f -p vcf {cpv_outfile}"
+        _run_command(cmd)
+        self.merge_vcf_dict['e'] = cpv_outfile
+
     def concat_results(self):
         concat_drv_out = self.outfile_name.format('_drv.vcf.gz')
-        self.merge_vcf_dict['e'] = self.input_data['vcf_file']['path']
+        self.merge_vcf_dict['f'] = self.input_data['vcf_file']['path']
 
         vcf_files = ([self.merge_vcf_dict[myvcf] for myvcf in sorted(self.merge_vcf_dict.keys())])
 
