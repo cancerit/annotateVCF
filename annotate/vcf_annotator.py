@@ -127,9 +127,9 @@ class VcfAnnotator:
         cmd = f"bcftools annotate -i '{combined_filter}'" \
               f" --merge-logic DRV:unique" \
               f" -a {muts_file} -h {self.drv_header} " \
-              f"-c CHROM,FROM,TO,INFO/DRV {self.vcf_path} |" \
-              f"bcftools annotate  -i 'DRV!=\".\" && DRV[*]==VC' | " \
-              f"bgzip -c >{muts_outfile} && tabix -f -p vcf {muts_outfile}"
+              f"-c CHROM,FROM,TO,INFO/DRV {self.vcf_path} " \
+              f" | bcftools annotate  -i 'INFO/DRV!=\".\" && INFO/DRV[*]==INFO/VC' " \
+              f" | bgzip -c >{muts_outfile} && tabix -f -p vcf {muts_outfile}"
         _run_command(cmd)
         self.merge_vcf_dict['a'] = muts_outfile
 
@@ -176,9 +176,9 @@ class VcfAnnotator:
         cmd = f"bcftools annotate -i '{combined_filter}'" \
               f" --merge-logic CPV:unique" \
               f" -a {cpv_file} -h {self.drv_header} " \
-              f"-c CHROM,FROM,TO,INFO/CPV {self.vcf_path} |" \
-              f"bcftools annotate  -i 'CPV!=\".\" && CPV[*]==VC' | " \
-              f"bgzip -c >{cpv_outfile} && tabix -f -p vcf {cpv_outfile}"
+              f"-c CHROM,FROM,TO,INFO/CPV {self.vcf_path} " \
+              f" | bcftools annotate  -i 'INFO/CPV!=\".\" && INFO/CPV[*]==INFO/VC'  " \
+              f" | bgzip -c >{cpv_outfile} && tabix -f -p vcf {cpv_outfile}"
         _run_command(cmd)
         self.merge_vcf_dict['e'] = cpv_outfile
 
