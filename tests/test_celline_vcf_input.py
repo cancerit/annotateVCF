@@ -29,7 +29,7 @@ class TestClass():
                                 'ext': '.vcf.gz',
                                 'path': test_dir + 'celline.vcf.gz'
                                 }}
-  file_dict = {'input_status': {'mutations': True, 'lof_genes': True,
+  file_dict = {'input_status': {'mutations': True, 'lof_genes': True,'cancer_predisposition': False,
                                 'normal_panel': True, 'vcf_file': True}}
 
   info_filter="INFO/VC=\"stop_lost,start_lost,ess_splice,frameshift,nonsense\""
