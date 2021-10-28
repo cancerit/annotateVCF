@@ -1,4 +1,5 @@
-
+## 1.2.2
+* added functionality to tag CPV : cancer predisposition variants
 ## 1.2.1
 * updated documentation and README
 ## 1.2.0
