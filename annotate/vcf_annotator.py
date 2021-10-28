@@ -181,6 +181,7 @@ class VcfAnnotator:
               f" | bcftools annotate  -i 'INFO/CPV!=\".\" && INFO/CPV[*]==INFO/VC'  " \
               f" | bgzip -c >{cpv_outfile} && tabix -f -p vcf {cpv_outfile}"
         _run_command(cmd)
+        
         self.merge_vcf_dict['c'] = cpv_outfile
 
     def concat_results(self):
