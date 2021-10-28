@@ -112,8 +112,9 @@ class VcfAnnotator:
         self._set_input_vcf(input_data)
 
         # add vcf path to concat in the  order of priority...
-        self.merge_vcf_dict['c'] = filtered_vcf
-        self.merge_vcf_dict['d'] = tagged_vcf
+        self.merge_vcf_dict['d'] = filtered_vcf
+        # contains all record taggedwith NPGL
+        self.merge_vcf_dict['e'] = tagged_vcf
 
     def annot_drv_muts(self, muts_file):
         """
@@ -180,7 +181,8 @@ class VcfAnnotator:
               f" | bcftools annotate  -i 'INFO/CPV!=\".\" && INFO/CPV[*]==INFO/VC'  " \
               f" | bgzip -c >{cpv_outfile} && tabix -f -p vcf {cpv_outfile}"
         _run_command(cmd)
-        self.merge_vcf_dict['e'] = cpv_outfile
+        
+        self.merge_vcf_dict['c'] = cpv_outfile
 
     def concat_results(self):
         concat_drv_out = self.outfile_name.format('_drv.vcf.gz')
