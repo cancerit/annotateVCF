@@ -1,8 +1,5 @@
 # annotateVcf
-| Master                                              | Develop                                               |
-| --------------------------------------------------- | ----------------------------------------------------- |
-| [![Master Badge][travis-master-badge]][travis-repo] | [![Develop Badge][travis-develop-badge]][travis-repo] |
-
+[![cancerit](https://circleci.com/gh/cancerit/annotateVCF.svg?style=svg)](https://circleci.com/gh/cancerit/annotateVCF)
 This project hosts scripts to annotate VCF files using user defined driver genes and mutations
 
 <!-- TOC depthFrom:2 depthTo:6 withLinks:1 updateOnSave:1 orderedList:0 -->
