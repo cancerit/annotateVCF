@@ -55,9 +55,9 @@ time \
 tabix \
 bcftools \
 unattended-upgrades \
-python3 \
+python3.7 \
 python-setuptools \
-python3-pip \
+python3.7-pip \
 zlib1g-dev libbz2-dev liblzma-dev libcurl4-gnutls-dev && \
 unattended-upgrade -d -v
 RUN apt-get autoremove -yq
