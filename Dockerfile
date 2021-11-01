@@ -35,7 +35,7 @@ RUN pip3.7 install --install-option="--prefix=$CGP_OPT/python-lib" https://githu
 
 COPY . .
 
-RUN python3 setup.py sdist
+RUN python3.7 setup.py sdist
 RUN pip3.7 install --install-option="--prefix=$CGP_OPT/python-lib" dist/$(ls -1 dist/)
 
 FROM ubuntu:20.04
