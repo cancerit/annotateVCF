@@ -13,8 +13,9 @@ RUN apt-get install -yq --no-install-recommends \
  make \
  gcc \
  pkg-config \
- python3 python3-dev python3-pip python3-setuptools \
+ python3.7 python3.7-dev python3-pip python3-setuptools \
  zlib1g-dev libbz2-dev liblzma-dev libcurl4-gnutls-dev \
+ python3.7 get-pip.py \
  git
 
 ENV CGP_OPT /opt/wtsi-cgp
@@ -28,14 +29,14 @@ ENV LC_ALL en_US.UTF-8
 ENV LANG en_US.UTF-8
 
 # install annotatevcf
-RUN pip3 install --upgrade setuptools
+RUN pip3.7 install --upgrade setuptools
 
-RUN pip3 install --install-option="--prefix=$CGP_OPT/python-lib" https://github.com/cancerit/annotateVCF/archive/${ANNOTATEVCF_VER}.tar.gz
+RUN pip3.7 install --install-option="--prefix=$CGP_OPT/python-lib" https://github.com/cancerit/annotateVCF/archive/${ANNOTATEVCF_VER}.tar.gz
 
 COPY . .
 
 RUN python3 setup.py sdist
-RUN pip3 install --install-option="--prefix=$CGP_OPT/python-lib" dist/$(ls -1 dist/)
+RUN pip3.7 install --install-option="--prefix=$CGP_OPT/python-lib" dist/$(ls -1 dist/)
 
 FROM ubuntu:20.04
 
