@@ -3,13 +3,13 @@
 from setuptools import setup
 
 config = {
-    'version': '1.2.3',
+    'version': '1.2.4',
     'name': 'annotateVcf',
     'description': 'Tool to annotate and filter vcf files...',
     'author': 'Shriram Bhosle',
     'url': 'https://github.com/cancerIT/annotateVcf',
     'author_email': 'cgphelp@sanger.ac.uk',
-    'python_requires': '>= 3.7, !=3.8.*',
+    'python_requires': '>= 3.9',
     'install_requires': ['tzlocal'],
     'packages': ['annotate'],
     'package_data': {'annotate':['config/*.conf','config/*.header','config/*.json']},

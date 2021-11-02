@@ -1,5 +1,7 @@
+## 1.2.4
+* update python in Docker file, added requirements.txt
 ## 1.2.3
-* updated pyhton version in docekrfile to 3.7
+* updated python version in docekrfile to 3.7
 ## 1.2.2
 * added functionality to tag CPV : cancer predisposition variants
 ## 1.2.1

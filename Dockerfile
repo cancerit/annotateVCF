@@ -3,10 +3,12 @@ USER root
 
 MAINTAINER  cgphelp@sanger.ac.uk
 
-ENV ANNOTATEVCF_VER '1.2.2'
+ENV ANNOTATEVCF_VER '1.2.4'
 
 # install system tools
+RUN add-apt-repository ppa:deadsnakes/ppa   
 RUN apt-get -yq update
+
 RUN apt-get install -yq --no-install-recommends \
  locales \
  g++ \
@@ -15,13 +17,14 @@ RUN apt-get install -yq --no-install-recommends \
  pkg-config \
  python3.7 python3.7-dev python3-pip python3-setuptools \
  zlib1g-dev libbz2-dev liblzma-dev libcurl4-gnutls-dev \
- python3.7 get-pip.py \
+ && curl -sSL --retry 10 https://bootstrap.pypa.io/get-pip.py > get-pip.py \
+ && python3.7 get-pip.py \
  git
 
 ENV CGP_OPT /opt/wtsi-cgp
 RUN mkdir $CGP_OPT
 ENV PATH $CGP_OPT/bin:$CGP_OPT/python-lib/bin:$PATH
-ENV PYTHONPATH $CGP_OPT/python-lib/lib/python3.8/site-packages
+ENV PYTHONPATH $CGP_OPT/python-lib/lib/python3.7/site-packages
 
 RUN locale-gen en_US.UTF-8
 RUN update-locale LANG=en_US.UTF-8
@@ -41,11 +44,11 @@ RUN pip3.7 install --install-option="--prefix=$CGP_OPT/python-lib" dist/$(ls -1 
 FROM ubuntu:20.04
 
 LABEL uk.ac.sanger.cgp="Cancer Genome Project, Wellcome Sanger Institute" \
-      version="1.2.1" \
+      version="1.2.4" \
       description="Tool to perform vcf file annotation"
 
 ### security upgrades and cleanup
-### security upgrades and cleanup
+RUN add-apt-repository ppa:deadsnakes/ppa
 RUN apt-get -yq update
 RUN apt-get install -yq --no-install-recommends \
 apt-transport-https \
@@ -56,8 +59,8 @@ tabix \
 bcftools \
 unattended-upgrades \
 python3.7 \
-python-setuptools \
-python3.7-pip \
+python3-setuptools \
+python3-pip \
 zlib1g-dev libbz2-dev liblzma-dev libcurl4-gnutls-dev && \
 unattended-upgrade -d -v
 RUN apt-get autoremove -yq
@@ -66,7 +69,7 @@ RUN locale-gen en_US.UTF-8
 RUN update-locale LANG=en_US.UTF-8
 ENV CGP_OPT /opt/wtsi-cgp
 ENV PATH $CGP_OPT/bin:$CGP_OPT/python-lib/bin:$PATH
-ENV PYTHONPATH $CGP_OPT/python-lib/lib/python3.8/site-packages
+ENV PYTHONPATH $CGP_OPT/python-lib/lib/python3.7/site-packages
 RUN pip3 install --upgrade setuptools
 ENV LD_LIBRARY_PATH $OPT/lib
 ENV LC_ALL en_US.UTF-8
