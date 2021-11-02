@@ -6,19 +6,30 @@ MAINTAINER  cgphelp@sanger.ac.uk
 ENV ANNOTATEVCF_VER '1.2.4'
 
 # install system tools
+
 RUN apt-get -yq update \
 && apt-get -yq install --no-install-recommends software-properties-common \
 && add-apt-repository ppa:deadsnakes/ppa \
-&& locales \
-&& g++ \
-&& make \
-&& gcc \
-&& pkg-config \
-&& python3.7 python3.7-dev python3-pip python3-setuptools \
-&& zlib1g-dev libbz2-dev liblzma-dev libcurl4-gnutls-dev \
+&& apt-get -yq install --no-install-recommends python3.7 \
+&& update-alternatives --install /usr/bin/python python /usr/bin/python3.7 1
+
+# not in final image
+# hadolint ignore=DL3008
+RUN apt-get -yq update \
+&& apt-get -yq install --no-install-recommends \
+    build-essential \
+    python3.7-dev \
+    python3.7-distutils \
+    python3.7-venv \
+    curl \
+    zlib1g-dev \
+    libbz2-dev \
+    liblzma-dev \
+    libcurl4-openssl-dev \
+    libmagic-dev \
 && curl -sSL --retry 10 https://bootstrap.pypa.io/get-pip.py > get-pip.py \
-&& python3.7 get-pip.py \
-&& git
+&& python3.7 get-pip.py
+
 
 ENV CGP_OPT /opt/wtsi-cgp
 RUN mkdir $CGP_OPT
