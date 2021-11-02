@@ -6,20 +6,19 @@ MAINTAINER  cgphelp@sanger.ac.uk
 ENV ANNOTATEVCF_VER '1.2.4'
 
 # install system tools
-RUN add-apt-repository ppa:deadsnakes/ppa   
-RUN apt-get -yq update
-
-RUN apt-get install -yq --no-install-recommends \
- locales \
- g++ \
- make \
- gcc \
- pkg-config \
- python3.7 python3.7-dev python3-pip python3-setuptools \
- zlib1g-dev libbz2-dev liblzma-dev libcurl4-gnutls-dev \
- && curl -sSL --retry 10 https://bootstrap.pypa.io/get-pip.py > get-pip.py \
- && python3.7 get-pip.py \
- git
+RUN apt-get -yq update \
+&& apt-get -yq install --no-install-recommends software-properties-common \
+&& add-apt-repository ppa:deadsnakes/ppa \
+&& locales \
+&& g++ \
+&& make \
+&& gcc \
+&& pkg-config \
+&& python3.7 python3.7-dev python3-pip python3-setuptools \
+&& zlib1g-dev libbz2-dev liblzma-dev libcurl4-gnutls-dev \
+&& curl -sSL --retry 10 https://bootstrap.pypa.io/get-pip.py > get-pip.py \
+&& python3.7 get-pip.py \
+&& git
 
 ENV CGP_OPT /opt/wtsi-cgp
 RUN mkdir $CGP_OPT
@@ -48,7 +47,6 @@ LABEL uk.ac.sanger.cgp="Cancer Genome Project, Wellcome Sanger Institute" \
       description="Tool to perform vcf file annotation"
 
 ### security upgrades and cleanup
-RUN add-apt-repository ppa:deadsnakes/ppa
 RUN apt-get -yq update
 RUN apt-get install -yq --no-install-recommends \
 apt-transport-https \
