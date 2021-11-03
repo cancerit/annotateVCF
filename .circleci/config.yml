@@ -1,41 +1,55 @@
+# 1. Set your GitHub default branch to dev/develop
+# 2. In annotatevcf project settings->advanced set:
+#    - GitHub Status Updates (this should be on already)
+#    - Only build pull requests
+#    - Auto-cancel redundant builds
+#    - Free and Open Source (this should be on already)
+
 version: 2.1
-
-orbs:
-  # The python orb contains a set of prepackaged CircleCI configuration you can use repeatedly in your configuration files
-  # Orb commands and jobs help you with common scripting around a language/tool
-  # so you dont have to copy and paste it everywhere.
-  # See the orb documentation here: https://circleci.com/developer/orbs/orb/circleci/python
-  python: circleci/python@1.2
-
-workflows:
-  sample:  # This is the name of the workflow, feel free to change it to better match your workflow.
-    # Inside the workflow, you define the jobs you want to run. 
-    # For more details on extending your workflow, see the configuration docs: https://circleci.com/docs/2.0/configuration-reference/#workflows 
-    jobs:
-      - build-and-test
-
-
 jobs:
-  build-and-test:  # This is the name of the job, feel free to change it to better match what you're trying to do!
-    # These next lines defines a Docker executors: https://circleci.com/docs/2.0/executor-types/
-    # You can specify an image from Dockerhub or use one of the convenience images from CircleCI's Developer Hub
-    # A list of available CircleCI Docker convenience images are available here: https://circleci.com/developer/images/image/cimg/python
-    # The executor is the environment in which the steps below will be executed - below will use a python 3.9 container
-    # Change the version below to your required version of python
-    docker:
-      - image: cimg/python:3.7
-    # Checkout the code as the first step. This is a dedicated CircleCI step.
-    # The python orb's install-packages step will install the dependencies from a Pipfile via Pipenv by default.
-    # Here we're making sure we use just use the system-wide pip. By default it uses the project root's requirements.txt.
-    # Then run your tests!
-    # CircleCI will report the results back to your VCS provider.
+  license_chk:
+    machine:
+      # need machine as want to mount a volume
+      image: ubuntu-2004:202107-02
     steps:
       - checkout
-      - python/install-packages:
-          pkg-manager: pip
-          # app-dir: ~/project/package-directory/  # If you're requirements.txt isn't in the root directory.
-          # pip-dependency-file: test-requirements.txt  # if you have a different name for your requirements file, maybe one that combines your runtime and test requirements.
       - run:
-          name: Run tests
-          # This assumes pytest is installed via the install-package step above
-          command: pytest
+          name: Execute skywalking-eyes check of licenses
+          command: |
+            docker run --rm -v $(pwd):/github/workspace apache/skywalking-eyes header check
+  build_docker:
+    environment:
+      IMAGE_NAME: quay.io/wtsicgp/annotatevcf
+    machine:
+      # need machine as want to copy from
+      image: ubuntu-2004:202107-02
+    steps:
+      - checkout
+      - run:
+          name: Build Docker image
+          command: |
+            set -e
+            BRANCH_OR_TAG="${CIRCLE_TAG:-$CIRCLE_BRANCH}"
+            CLEAN_BRANCH=$(echo $BRANCH_OR_TAG | tr / -)
+            echo "$DOCKERHUB_PASSWORD" | docker login -u "$DOCKERHUB_USER" --password-stdin
+            echo "$QUAYIO_PASSWORD" | docker login -u "$QUAYIO_USER" --password-stdin quay.io
+            docker build -t $IMAGE_NAME:$CLEAN_BRANCH .
+            docker run -t --rm $IMAGE_NAME:$CLEAN_BRANCH annotateVcf --version
+            mkdir -p test-results/pytest/
+            container_id=$(docker run -d --rm $IMAGE_NAME:$CLEAN_BRANCH annotateVcf sleep 1000)
+            docker rm -f $container_id
+      - store_test_results:
+          path: test-results
+
+workflows:
+  version: 2.1
+  build_test_publish:
+    jobs:
+      - license_chk:
+          filters:
+            tags:
+              only: /.+/
+      - build_docker:
+          context:
+            - dockerhub-casmservice
+            - quayio-casmservice
