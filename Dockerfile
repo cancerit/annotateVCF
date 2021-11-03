@@ -1,26 +1,38 @@
-FROM  ubuntu:20.04 as builder
-USER root
+FROM ubuntu:20.04 as builder
 
-MAINTAINER  cgphelp@sanger.ac.uk
+# Locale
+ENV LC_ALL C
+ENV LC_ALL C.UTF-8
+ENV LANG C.UTF-8
 
-ENV ANNOTATEVCF_VER '1.2.4'
+# ensure any pipes fail correctly, may impact other things
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
-# install system tools
+# work in an area that will get discarded
+WORKDIR /tmp/build
 
+# Prevent interactive options during installs
+ENV DEBIAN_FRONTEND=noninteractive
+
+# apt stuff
+# hadolint ignore=DL3008
 RUN apt-get -yq update \
 && apt-get -yq install --no-install-recommends software-properties-common \
 && add-apt-repository ppa:deadsnakes/ppa \
-&& apt-get -yq install --no-install-recommends python3.7 \
-&& update-alternatives --install /usr/bin/python python /usr/bin/python3.7 1
+&& apt-get -yq install --no-install-recommends python3.9 \
+&& update-alternatives --install /usr/bin/python python /usr/bin/python3.9 1
 
 # not in final image
 # hadolint ignore=DL3008
 RUN apt-get -yq update \
 && apt-get -yq install --no-install-recommends \
     build-essential \
-    python3.7-dev \
-    python3.7-distutils \
-    python3.7-venv \
+    python3.9-dev \
+    python3.9-distutils \
+    python3.9-venv \
+    time \
+    tabix \
+    bcftools \
     curl \
     zlib1g-dev \
     libbz2-dev \
@@ -28,68 +40,72 @@ RUN apt-get -yq update \
     libcurl4-openssl-dev \
     libmagic-dev \
 && curl -sSL --retry 10 https://bootstrap.pypa.io/get-pip.py > get-pip.py \
-&& python3.7 get-pip.py
+&& python3.9 get-pip.py
+
+# base environment
+ENV OPT /opt/wsi-t78
+ENV VIRTUAL_ENV=$OPT/venv
+RUN python3.9 -m venv $VIRTUAL_ENV
+ENV PATH="$VIRTUAL_ENV/bin:$PATH"
+
+COPY annotate/ annotate/
+COPY README.md setup.py requirements.txt requirements_dev.txt run_tests.sh ./
+RUN pip install --no-cache-dir -r requirements_dev.txt
+COPY tests/ tests/
+#COPY .coveragerc .
+RUN python3.9 ./setup.py develop && ./run_tests.sh
+
+# generate the coverage report (and junit.xml) in for info and later use
+RUN mkdir -p /var/www/annotateVCF && mv htmlcov /var/www/annotateVCF/test-coverage
+
+# as we use COPY we can cleanup stuff from the testing layers and actually get a smaller image
+RUN comm -13 <(sort requirements.txt) <(sort requirements_dev.txt) | xargs pip uninstall -y
+
+# deploy properly
+RUN python3.9 ./setup.py install \
+# make sure permissions are correct
+&& find $OPT -type d -exec chmod o+rx {} \; \
+&& find $OPT -type f -exec chmod o+r {} \;
 
 
-ENV CGP_OPT /opt/wtsi-cgp
-RUN mkdir $CGP_OPT
-ENV PATH $CGP_OPT/bin:$CGP_OPT/python-lib/bin:$PATH
-ENV PYTHONPATH $CGP_OPT/python-lib/lib/python3.7/site-packages
-
-RUN locale-gen en_US.UTF-8
-RUN update-locale LANG=en_US.UTF-8
-ENV LC_ALL en_US.UTF-8
-ENV LANG en_US.UTF-8
-
-# install annotatevcf
-RUN pip3.7 install --upgrade setuptools
-
-RUN pip3.7 install --install-option="--prefix=$CGP_OPT/python-lib" https://github.com/cancerit/annotateVCF/archive/${ANNOTATEVCF_VER}.tar.gz
-
-COPY . .
-
-RUN python3.7 setup.py sdist
-RUN pip3.7 install --install-option="--prefix=$CGP_OPT/python-lib" dist/$(ls -1 dist/)
-
+########################## FINAL IMAGE ##########################
 FROM ubuntu:20.04
 
-LABEL uk.ac.sanger.cgp="Cancer Genome Project, Wellcome Sanger Institute" \
-      version="1.2.4" \
-      description="Tool to perform vcf file annotation"
+# Locale
+ENV LC_ALL C
+ENV LC_ALL C.UTF-8
+ENV LANG C.UTF-8
 
-### security upgrades and cleanup
-RUN apt-get -yq update
-RUN apt-get install -yq --no-install-recommends \
-apt-transport-https \
-locales \
-ca-certificates \
-time \
-tabix \
-bcftools \
-unattended-upgrades \
-python3.7 \
-python3-setuptools \
-python3-pip \
-zlib1g-dev libbz2-dev liblzma-dev libcurl4-gnutls-dev && \
-unattended-upgrade -d -v
-RUN apt-get autoremove -yq
+# Prevent interactive options during installs
+ENV DEBIAN_FRONTEND=noninteractive
 
-RUN locale-gen en_US.UTF-8
-RUN update-locale LANG=en_US.UTF-8
-ENV CGP_OPT /opt/wtsi-cgp
-ENV PATH $CGP_OPT/bin:$CGP_OPT/python-lib/bin:$PATH
-ENV PYTHONPATH $CGP_OPT/python-lib/lib/python3.7/site-packages
-RUN pip3 install --upgrade setuptools
-ENV LD_LIBRARY_PATH $OPT/lib
-ENV LC_ALL en_US.UTF-8
-ENV LANG en_US.UTF-8
-RUN mkdir -p $CGP_OPT
-COPY --from=builder $CGP_OPT $CGP_OPT
+# apt stuff
+# hadolint ignore=DL3008
+RUN apt-get -yq update \
+&& apt-get -yq install --no-install-recommends software-properties-common libmagic-dev zlib1g curl \
+&& add-apt-repository ppa:deadsnakes/ppa \
+&& apt-get -yq install --no-install-recommends python3.9 \
+# make sure all security patches are applied
+&& apt-get -yq update && apt-get install -yq --no-install-recommends unattended-upgrades \
+&& unattended-upgrade -d -v \
+&& apt-get remove -yq unattended-upgrades \
+&& apt-get autoremove -yq \
+&& apt-get clean \
+&& rm -rf /var/lib/apt/lists/* \
+&& update-alternatives --install /usr/bin/python python /usr/bin/python3.9 1
 
-## USER CONFIGURATION 
+
+ENV OPT /opt/wsi-t78
+ENV VIRTUAL_ENV=$OPT/venv
+ENV PATH="$VIRTUAL_ENV/bin:$PATH"
+
+COPY --from=builder $OPT $OPT
+# the test coverage html output - we can grab and pass to gitlab-pages
+COPY --from=builder /var/www/ /var/www/
+
+RUN annotateVcf --version
 
 RUN adduser --disabled-password --gecos '' ubuntu && chsh -s /bin/bash && mkdir -p /home/ubuntu
-
 USER ubuntu
 
 WORKDIR /home/ubuntu
