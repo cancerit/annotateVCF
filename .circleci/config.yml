@@ -29,7 +29,7 @@ jobs:
           name: Build Docker image
           command: |
             set -e
-            BRANCH_OR_TAG="${ANNOTATEVCF_TAG:-$ANNOTATEVCF_BRANCH}"
+            BRANCH_OR_TAG="${CIRCLE_TAG:-$CIRCLE_BRANCH}"
             CLEAN_BRANCH=$(echo $BRANCH_OR_TAG | tr / -)
             echo "$DOCKERHUB_PASSWORD" | docker login -u "$DOCKERHUB_USER" --password-stdin
             echo "$QUAYIO_PASSWORD" | docker login -u "$QUAYIO_USER" --password-stdin quay.io
@@ -53,11 +53,3 @@ workflows:
           context:
             - dockerhub-casmservice
             - quayio-casmservice
-          requires:
-            - license_chk
-          filters:
-            tags:
-              only: /.+/
-          filters:
-            tags:
-              only: /.+/

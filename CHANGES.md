@@ -1,5 +1,5 @@
 ## 1.2.4
-* update python in Docker file, added requirements.txt
+* update python to 3.9 for Docker contianer, added requirements.txt and circleci[optional]
 ## 1.2.3
 * updated python version in docekrfile to 3.7
 ## 1.2.2
