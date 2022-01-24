@@ -37,6 +37,8 @@ jobs:
             docker run -t --rm $IMAGE_NAME:$CLEAN_BRANCH annotateVcf --version
             mkdir -p test-results/pytest/
             container_id=$(docker run -d --rm $IMAGE_NAME:$CLEAN_BRANCH annotateVcf sleep 1000)
+            container_id=$(docker run -d --rm $IMAGE_NAME:$CLEAN_BRANCH bcftools sleep 1000)
+            container_id=$(docker run -d --rm $IMAGE_NAME:$CLEAN_BRANCH tabix sleep 1000)
             docker rm -f $container_id
       - store_test_results:
           path: test-results

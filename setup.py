@@ -33,7 +33,7 @@
 from setuptools import setup
 
 config = {
-    'version': '1.2.5',
+    'version': '1.2.6',
     'name': 'annotateVcf',
     'description': 'Tool to annotate and filter vcf files...',
     'author': 'Shriram Bhosle',
