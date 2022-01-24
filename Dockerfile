@@ -85,6 +85,15 @@ RUN apt-get -yq update \
 && apt-get -yq install --no-install-recommends software-properties-common libmagic-dev zlib1g curl \
 && add-apt-repository ppa:deadsnakes/ppa \
 && apt-get -yq install --no-install-recommends python3.9 \
+   time \
+    tabix \
+    bcftools \
+    curl \
+    zlib1g-dev \
+    libbz2-dev \
+    liblzma-dev \
+    libcurl4-openssl-dev \
+    libmagic-dev \
 # make sure all security patches are applied
 && apt-get -yq update && apt-get install -yq --no-install-recommends unattended-upgrades \
 && unattended-upgrade -d -v \

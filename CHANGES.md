@@ -1,3 +1,5 @@
+## 1.2.6
+* resolved issue with bcftools and tabix access 
 ## 1.2.5 
 * added licesnes to test file, removed olld travis build file
 ## 1.2.4
