@@ -12,3 +12,4 @@ toml==0.10.2
 tomli==1.2.2
 tzdata==2021.5
 tzlocal==4.1
+pyvcf==0.6.8

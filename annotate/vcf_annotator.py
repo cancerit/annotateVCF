@@ -35,11 +35,15 @@ import os
 import re
 import io
 import copy
+import vcf
+
+from vcf import utils
+from collections import defaultdict
 from subprocess import Popen, PIPE, STDOUT, TimeoutExpired
 import pkg_resources
 
 '''
-  This code runs bcftools to annotates driver gene and variant sites
+  This code runs bcftools and pyvcf to annotates user provided driver gene and variant sites
 '''
 
 
@@ -61,6 +65,7 @@ class VcfAnnotator:
         self._set_input_vcf(self.input_data)
         self.drv_header = f.header_line
         self.merge_vcf_dict = {}
+        self.annotated_vcf_list = []
         self.keepTmp = f.keepTmp
         # run analysis
         self._runAnalysis(f)
@@ -78,6 +83,9 @@ class VcfAnnotator:
         self.format_filters = vcf_filter_params['FORMAT']
         self.filter_filters = vcf_filter_params['FILTER']
         self.flag_germline = vcf_filter_params['INFO_FLAG_GERMLINE']
+        drv_type = f.format(['drv_type'])
+        self.drv_type_dict = drv_type.get('drv_type', None)
+
         run_status = False
         a_type = ['normal_panel', 'mutations', 'lof_genes', 'cancer_predisposition']
 
@@ -163,7 +171,7 @@ class VcfAnnotator:
               f" | bcftools annotate  -i 'INFO/DRV!=\".\" && INFO/DRV[*]==INFO/VC' " \
               f" | bgzip -c >{muts_outfile} && tabix -f -p vcf {muts_outfile}"
         _run_command(cmd)
-        self.merge_vcf_dict['a'] = muts_outfile
+        self.annotated_vcf_list.append(muts_outfile)
 
     def annotate_lof_genes(self, genes_file):
         """
@@ -194,7 +202,9 @@ class VcfAnnotator:
                     # write matching LoF genes....
                     if gene.upper() in lof_gene_list:
                         lof_fh.write(line)
-        self.merge_vcf_dict['b'] = compress_vcf(lof_outfile)
+        #compress and store vcf
+        lof_outfile_gz = compress_vcf(lof_outfile)
+        self.annotated_vcf_list.append(lof_outfile_gz)
 
     def annotate_cpv(self, cpv_file):
         """
@@ -212,10 +222,87 @@ class VcfAnnotator:
               f" | bcftools annotate  -i 'INFO/CPV!=\".\" && INFO/CPV[*]==INFO/VC'  " \
               f" | bgzip -c >{cpv_outfile} && tabix -f -p vcf {cpv_outfile}"
         _run_command(cmd)
-        self.merge_vcf_dict['c'] = cpv_outfile
+        self.annotated_vcf_list.append(cpv_outfile)
+
+    def _get_vcf_readers(self):
+        """
+         create vcf file readers for each annotated vcf file
+        :return: list of vcf file readers
+        """
+        vcf_readers = []
+        for my_vcf in self.annotated_vcf_list:
+            vcf_readers.append(vcf.Reader(filename=my_vcf))
+        return  vcf_readers
+
+    def walk_annotated_vcf(self, vcf_readers):
+        """
+        walk through each line of vcf files, matching records will be walked together
+        However to circumvent occasional anomalous behaviour of pyVCF I have created separate 'vcf_key' to store matched records and their driver type
+        records written in a collection for each 'vcf_key' as ke val pair of driver_type and vcf record
+        e.g., 'chr17_7675139_C_[A]': {'somatic': <vcf.model._Record object at 0x7f82ca93ee50>, 'germline': <vcf.model._Record object at 0x7f82ca93ee80>}
+        :return: collection as above
+        """
+        write_record = defaultdict(dict)
+
+        for record in utils.walk_together(*vcf_readers):
+            filtered_record = list(filter(None, record))
+            for vcf_line in filtered_record:
+                vcf_key = f"{vcf_line.CHROM}_{vcf_line.POS}_{vcf_line.REF}_{vcf_line.ALT}"
+                (drv_type, drv_val) = self.get_driver_type(vcf_line)
+                write_record[vcf_key][drv_val] = vcf_line
+        return write_record
+
+    def get_driver_type(self, vcf_line):
+        """
+        get driver type for given vcf line
+        :return:
+        """
+        for drv_type in self.drv_type_dict.keys():
+            if vcf_line.INFO.get(drv_type, None):
+                drv_val = self.drv_type_dict.get(drv_type, 'NA')
+                return drv_type, drv_val
+
+    def set_driver_type(self, vcf_line):
+        """
+        set driver type for  vcf line to False
+        :return:
+        """
+        for drv_type in self.drv_type_dict.keys():
+          if vcf_line.INFO.get(drv_type, None):
+            vcf_line.INFO[drv_type] = False
+
+
+    def print_record(self, write_record, vcf_writer):
+        """
+        print driver record to vcf header template file generated from one of the annotated vcf file
+        :return:
+        """
+        for records in write_record.values():
+            drv_type = set()
+            edit_line = None
+            for my_drv, edit_line in records.items():
+                drv_type.add(my_drv)
+            self.set_driver_type(edit_line)
+            edit_line.INFO['DRV'] = sorted(drv_type)
+            vcf_writer.write_record(edit_line)
+        vcf_writer.close()
 
     def concat_results(self):
+        """
+        process and concatenate the annotated vcf files...
+        :return:
+        """
+        annotated_vcfs = self.annotated_vcf_list
         concat_drv_out = self.outfile_name.format('_drv.vcf.gz')
+        # combine annotated vcf files...
+        vcf_readers=self._get_vcf_readers()
+        write_record=self.walk_annotated_vcf(vcf_readers)
+        tmp_header = f"{self.outdir}/tmp_header_file"
+        (vcf_writer, combined_vcf) =_get_vcf_writer(annotated_vcfs[0], tmp_header)
+        self.print_record(write_record, vcf_writer)
+        combined_vcf_gz = compress_vcf(combined_vcf)
+
+        self.merge_vcf_dict['a'] = combined_vcf_gz
         self.merge_vcf_dict['f'] = self.input_data['vcf_file']['path']
 
         vcf_files = ([self.merge_vcf_dict[myvcf] for myvcf in sorted(self.merge_vcf_dict.keys())])
@@ -289,6 +376,17 @@ def unheader_vcf(header_vcf, unheader_vcf):
     _run_command(cmd)
     return unheader_vcf
 
+def _get_vcf_writer(my_vcf_file, tmp_header):
+    """
+    :param my_vcf_file:
+    :param my_vcf_header_file:
+    :return: my_vcf_header file
+    """
+    cmd = f"bcftools view -h {my_vcf_file} >{tmp_header}.vcf"
+    _run_command(cmd)
+    vcf_reader = vcf.Reader(filename=f"{tmp_header}.vcf")
+    vcf_writer = vcf.Writer(open(f"{tmp_header}_combined.vcf", 'w'), vcf_reader)
+    return vcf_writer, f"{tmp_header}_combined.vcf"
 
 def _run_command(cmd):
     """
@@ -307,7 +405,7 @@ def _run_command(cmd):
                     close_fds=True, executable='/bin/bash')
         (out, error) = cmd_obj.communicate()
         exit_code = cmd_obj.returncode
-        if (exit_code == 0):
+        if exit_code == 0:
             logging.debug(f"Command run successfully:\n{cmd}"
                           f"OUT:{out} Error:{error} Exit:{exit_code}\n")
         else:

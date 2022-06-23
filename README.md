@@ -22,7 +22,7 @@ This project hosts scripts to annotate VCF files using user defined driver genes
 
 ## Design
 
-Uses [bcftools], [tabix] and [bgzip] in user's path , these are part of [htslib] or can be installed separately
+Uses [bcftools], [tabix], [pyvcf] and [bgzip]  in user's path , these are part of [htslib] or can be installed separately
 
 ## Tools
 
@@ -45,8 +45,7 @@ Various exceptions can occur for malformed input files.
 
 ### outputFormat
 
- * ```<input>_drv.vcf.gz ``` output vcf file with DRV info field and consequence type if known, LoF in case annotated using LoF gene list, 
-CPV info field is added if variants in cancer predisposition genes are provided.
+ * ```<input>_drv.vcf.gz ``` output vcf file with DRV info field and type of driver instance (germline and/or somatic) overlapping with variant location.
 
 ## INSTALL
 Installing via `pip install`. Simply execute with the path to the compiled 'whl' found on the [release page][annotateVcf-releases]:
@@ -132,6 +131,7 @@ pip install --find-links=~/wheels annotateVcf
 <!--refs-->
  [htslib]: https://github.com/samtools/htslib
  [bcftools]: https://github.com/samtools/bcftools
+ [pyvcf]: https://pyvcf.readthedocs.io/en/latest/index.html
  [tabix]: https://github.com/samtools/tabix
  [VAGrENT]: https://github.com/cancerit/VAGrENT 
  [travis-master-badge]: https://travis-ci.org/cancerit/annotateVCF.svg?branch=master

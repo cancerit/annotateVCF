@@ -12,6 +12,7 @@ pyparsing==2.4.7
 pytest==6.2.5
 pytest-cov==3.0.0
 pytz-deprecation-shim==0.1.0.post0
+pyvcf==0.6.8
 radon==5.1.0
 six==1.16.0
 toml==0.10.2
