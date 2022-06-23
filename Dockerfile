@@ -50,6 +50,7 @@ ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
 COPY annotate/ annotate/
 COPY README.md setup.py requirements.txt requirements_dev.txt run_tests.sh ./
+RUN pip install setuptools==57.5.0
 RUN pip install --no-cache-dir -r requirements_dev.txt
 COPY tests/ tests/
 #COPY .coveragerc .
