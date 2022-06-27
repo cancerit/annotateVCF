@@ -36,6 +36,10 @@ class TestClass():
   format_filter= "FORMAT/VAF[*] > 0.15"
   filters_filter= "FILTER=\"PASS\""
   info_flag_germline="NPGL"
+  driver_type = {
+                "DRV": "somatic",
+                "CPV": "germline"
+                }
   # celline output
   muts_vcf = f"{test_out}/celline_muts.vcf.gz"
   lof_vcf = f"{test_out}/celline_genes_lof.vcf.gz"
