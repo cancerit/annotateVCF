@@ -96,7 +96,7 @@ class IO_Formatter:
         """
         input_status = check_inputs({'vcf_file': self.vcf_file, 'normal_panel': self.np_vcf,
                                      'mutations': self.muts_file, 'lof_genes': self.genes_file,
-                        'cancer_predisposition': self.cpv_file})
+                                     'cancer_predisposition': self.cpv_file})
         if input_status['vcf_file'] is None:
             sys.exit("Please provide input vcf file")
         return input_status
@@ -110,6 +110,7 @@ class IO_Formatter:
         """
         formatted_filters = parse_filters(self.json_file, 'include')
         return formatted_filters
+
     def _get_driver_type(self):
         """
         get driver types from user provided json file
@@ -117,7 +118,6 @@ class IO_Formatter:
         """
         driver_type = parse_filters(self.json_file, 'driver_type')
         return driver_type
-
 
     def _get_outdir_path(self):
         """
@@ -128,7 +128,6 @@ class IO_Formatter:
         os.makedirs(outputPath, exist_ok=True)
         return outputPath
 
-    # generic functions ....
 
 def check_inputs(file_dict):
     """

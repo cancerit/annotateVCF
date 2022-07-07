@@ -169,7 +169,7 @@ class VcfAnnotator:
               f" -a {muts_file} -h {self.drv_header} " \
               f"-c CHROM,FROM,TO,INFO/DRV {self.vcf_path} " \
               f" | bcftools annotate  -i 'INFO/DRV!=\".\" && INFO/DRV[*]==INFO/VC' " \
-              f" | bgzip -c >{muts_outfile} && tabix -f -p vcf {muts_outfile}"
+              f" | bcftools sort |  bgzip -c >{muts_outfile} && tabix -f -p vcf {muts_outfile}"
         _run_command(cmd)
         self.annotated_vcf_list.append(muts_outfile)
 
@@ -202,8 +202,8 @@ class VcfAnnotator:
                     # write matching LoF genes....
                     if gene.upper() in lof_gene_list:
                         lof_fh.write(line)
-        #compress and store vcf
-        lof_outfile_gz = compress_vcf(lof_outfile)
+        # compress and store vcf
+        lof_outfile_gz = compress_vcf(lof_outfile, sort_it=True)
         self.annotated_vcf_list.append(lof_outfile_gz)
 
     def annotate_cpv(self, cpv_file):
@@ -220,7 +220,7 @@ class VcfAnnotator:
               f" -a {cpv_file} -h {self.drv_header} " \
               f"-c CHROM,FROM,TO,INFO/CPV {self.vcf_path} " \
               f" | bcftools annotate  -i 'INFO/CPV!=\".\" && INFO/CPV[*]==INFO/VC'  " \
-              f" | bgzip -c >{cpv_outfile} && tabix -f -p vcf {cpv_outfile}"
+              f" | bcftools sort | bgzip -c >{cpv_outfile} && tabix -f -p vcf {cpv_outfile}"
         _run_command(cmd)
         self.annotated_vcf_list.append(cpv_outfile)
 
@@ -232,25 +232,29 @@ class VcfAnnotator:
         vcf_readers = []
         for my_vcf in self.annotated_vcf_list:
             vcf_readers.append(vcf.Reader(filename=my_vcf))
-        return  vcf_readers
+        return vcf_readers
 
-    def walk_annotated_vcf(self, vcf_readers):
+    def walk_and_write_vcf(self, vcf_readers, vcf_writer):
         """
         walk through each line of vcf files, matching records will be walked together
-        However to circumvent occasional anomalous behaviour of pyVCF I have created separate 'vcf_key' to store matched records and their driver type
-        records written in a collection for each 'vcf_key' as ke val pair of driver_type and vcf record
-        e.g., 'chr17_7675139_C_[A]': {'somatic': <vcf.model._Record object at 0x7f82ca93ee50>, 'germline': <vcf.model._Record object at 0x7f82ca93ee80>}
-        :return: collection as above
+        get_key paramter val will determine the matching of sorted VCF lines
+        vcf record e.g., 'chr17_7675139_C_[A]': {'somatic': <vcf.model._Record object at 0x7f82ca93ee50>,
+        'germline': <vcf.model._Record object at 0x7f82ca93ee80>}
+        :return collection as above
         """
-        write_record = defaultdict(dict)
-
-        for record in utils.walk_together(*vcf_readers):
-            filtered_record = list(filter(None, record))
-            for vcf_line in filtered_record:
-                vcf_key = f"{vcf_line.CHROM}_{vcf_line.POS}_{vcf_line.REF}_{vcf_line.ALT}"
-                (drv_type, drv_val) = self.get_driver_type(vcf_line)
-                write_record[vcf_key][drv_val] = vcf_line
-        return write_record
+        for record in walk_together_iterator(vcf_readers):
+            # print(f"{tuple(map(str,record))}")
+            drv_type = set()
+            vcf_line = ""
+            # filtered_record = list(filter(None, record))
+            # iterate through vcf record from each file...
+            for vcf_line in record:
+                # get driver type from info line ...
+                drv_type_info = self.get_driver_type(vcf_line)
+                drv_type.add(drv_type_info)
+            vcf_line = self.set_driver_type(vcf_line, drv_type)
+            vcf_writer.write_record(vcf_line)
+        vcf_writer.close()
 
     def get_driver_type(self, vcf_line):
         """
@@ -259,33 +263,19 @@ class VcfAnnotator:
         """
         for drv_type in self.drv_type_dict.keys():
             if vcf_line.INFO.get(drv_type, None):
-                drv_val = self.drv_type_dict.get(drv_type, 'NA')
-                return drv_type, drv_val
+                return drv_type
 
-    def set_driver_type(self, vcf_line):
+    def set_driver_type(self, vcf_line, drv_type_info):
         """
         set driver type for  vcf line to False
         :return:
         """
         for drv_type in self.drv_type_dict.keys():
-          if vcf_line.INFO.get(drv_type, None):
-            vcf_line.INFO[drv_type] = False
-
-
-    def print_record(self, write_record, vcf_writer):
-        """
-        print driver record to vcf header template file generated from one of the annotated vcf file
-        :return:
-        """
-        for records in write_record.values():
-            drv_type = set()
-            edit_line = None
-            for my_drv, edit_line in records.items():
-                drv_type.add(my_drv)
-            self.set_driver_type(edit_line)
-            edit_line.INFO['DRV'] = sorted(drv_type)
-            vcf_writer.write_record(edit_line)
-        vcf_writer.close()
+            if drv_type in drv_type_info:
+                vcf_line.INFO[drv_type] = True
+            else:
+                vcf_line.INFO[drv_type] = False
+        return vcf_line
 
     def concat_results(self):
         """
@@ -295,12 +285,11 @@ class VcfAnnotator:
         annotated_vcfs = self.annotated_vcf_list
         concat_drv_out = self.outfile_name.format('_drv.vcf.gz')
         # combine annotated vcf files...
-        vcf_readers=self._get_vcf_readers()
-        write_record=self.walk_annotated_vcf(vcf_readers)
+        vcf_readers = self._get_vcf_readers()
         tmp_header = f"{self.outdir}/tmp_header_file"
-        (vcf_writer, combined_vcf) =_get_vcf_writer(annotated_vcfs[0], tmp_header)
-        self.print_record(write_record, vcf_writer)
-        combined_vcf_gz = compress_vcf(combined_vcf)
+        (vcf_writer, combined_vcf) = _get_vcf_writer(annotated_vcfs[0], tmp_header)
+        self.walk_and_write_vcf(vcf_readers, vcf_writer)
+        combined_vcf_gz = compress_vcf(combined_vcf, sort_it=True)
 
         self.merge_vcf_dict['a'] = combined_vcf_gz
         self.merge_vcf_dict['f'] = self.input_data['vcf_file']['path']
@@ -343,13 +332,15 @@ def get_drv_gene_list(drv_genes):
     return lof_gene_list
 
 
-def compress_vcf(vcf):
+def compress_vcf(vcf, sort_it=None):
     """
     :param vcf:
     :return:
     """
     outfile = vcf + '.gz'
-    cmd = f"bgzip -c <{vcf} >{outfile} && tabix -f -p vcf {outfile}"
+    cmd = f"bgzip -c {vcf} >{outfile} && tabix -f -p vcf {outfile}"
+    if sort_it:
+        cmd = f"bcftools sort {vcf}| bgzip -c   >{outfile} && tabix -f -p vcf {outfile}"
     _run_command(cmd)
     return outfile
 
@@ -365,6 +356,58 @@ def create_dummy_genome(input_vcf, genome_loc):
     _run_command(cmd)
 
 
+def ace_tuple(string):
+    # Split on runs of digits, keeping the digit strings
+    digit_split = re.split(r'(\d+)', string)
+    return tuple(
+        # Convert odd indexed elements from strings to integers
+        int(ele) if i % 2 else ele for i, ele in enumerate(digit_split)
+    )
+
+
+def vcf_key(r):
+    return ace_tuple(r.CHROM), r.POS, r.REF, r.ALT
+
+
+def walk_together_iterator(arg_Readers):
+    """
+    re-written by James to replace utils.walk_together from pyvcf
+    iterator to return matching vcf lines based on the vcf_key
+    Input: vcf readrs
+    """
+
+    vcf_Readers = [*arg_Readers]
+    nexts = [None for _ in vcf_Readers]
+    rkeys = [*nexts]
+
+    while True:
+        # Fetch records into nexts[]
+        for i, reader in enumerate(vcf_Readers):
+            if reader is None:
+                continue
+            rec = nexts[i]
+            if rec is None:
+                try:
+                    nxt = next(reader)
+                    nexts[i] = nxt
+                    rkeys[i] = vcf_key(nxt)
+                except StopIteration:
+                    vcf_Readers[i] = None
+        # Exit loop when there are no records left
+        if not any(rec is not None for rec in nexts):
+            break
+        # Get the smallest key in the list
+        min_key = min(k for k in rkeys if k is not None)
+        # Return the records which match smallest key
+        matching = []
+        for i, key in enumerate(rkeys):
+            if key == min_key:
+                matching.append(nexts[i])
+                nexts[i] = None
+                rkeys[i] = None
+        yield matching
+
+
 def unheader_vcf(header_vcf, unheader_vcf):
     """
     This is used for testing purpose only...
@@ -375,6 +418,7 @@ def unheader_vcf(header_vcf, unheader_vcf):
     cmd = f"bcftools view -H {header_vcf} >{unheader_vcf}"
     _run_command(cmd)
     return unheader_vcf
+
 
 def _get_vcf_writer(my_vcf_file, tmp_header):
     """
@@ -387,6 +431,7 @@ def _get_vcf_writer(my_vcf_file, tmp_header):
     vcf_reader = vcf.Reader(filename=f"{tmp_header}.vcf")
     vcf_writer = vcf.Writer(open(f"{tmp_header}_combined.vcf", 'w'), vcf_reader)
     return vcf_writer, f"{tmp_header}_combined.vcf"
+
 
 def _run_command(cmd):
     """
