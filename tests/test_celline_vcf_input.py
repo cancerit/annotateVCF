@@ -11,6 +11,7 @@ of annotateVcf
 '''
 
 class TestClass():
+
   configdir = os.path.join(os.path.dirname(os.path.realpath(__file__)))
   test_dir = configdir + '/test_input/'
   test_out = configdir + '/test_output/'
@@ -44,7 +45,7 @@ class TestClass():
   muts_vcf = f"{test_out}/celline_muts.vcf.gz"
   lof_vcf = f"{test_out}/celline_genes_lof.vcf.gz"
   drv_vcf = f"{test_out}/celline_drv.vcf.gz"
-  my_formatter=formatter.IO_Formatter(**options_vcf_celline) 
+  my_formatter=formatter.IO_Formatter(**options_vcf_celline)
   outdir_path=my_formatter.format(['outdir'])
 
   def test_celline_vcf_input(self):
@@ -82,7 +83,7 @@ class TestClass():
     assert self.info_flag_germline == vcf_filter_params['INFO_FLAG_GERMLINE'],'test_INFO_FLAG_GERMLINE test OK'
 
   def chek_celline_outdir(slef):
-       self.test_dir + 'tmpout' == self.outdir_path 
+       self.test_dir + 'tmpout' == self.outdir_path
 
   def test_celline_vcf_formatter(self):
     f = self.my_formatter
