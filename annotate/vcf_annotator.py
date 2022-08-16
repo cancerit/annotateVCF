@@ -444,24 +444,21 @@ def _run_command(cmd):
         raise ValueError("Must supply at least one argument")
 
     try:
-        # To capture standard error in the result, use stderr=subprocess.STDOUT:
-        cmd_obj = Popen(cmd, stdin=None, stdout=PIPE, stderr=PIPE,
-                    shell=True, universal_newlines=True, bufsize=-1,
-                    close_fds=True, executable='/bin/bash')
+        # Need to set pipefail on shell to capture non-zero exit of intermediate commands in pipe
+        cmd_obj = Popen(['bash', '-o', 'pipefail', '-c', cmd], stdout=PIPE, stderr=PIPE, text=True)
         (out, error) = cmd_obj.communicate()
         exit_code = cmd_obj.returncode
+        msg = f"\nSTDOUT:\n{out}\nSTDERR:\n{error}\nEXIT:{exit_code}"
         if exit_code == 0:
-            logging.debug(f"Command run successfully:\n{cmd}"
-                          f"OUT:{out} Error:{error} Exit:{exit_code}\n")
+            logging.info(f"Command run successfully:\n{cmd}" + msg)
         else:
-            logging.info("Error: command exited with non zero exit \
-                          status, please check logging file for more details")
-            logging.error(f"OUT:{out}:Error:{error}:Exit:{exit_code}")
+            logging.error(msg)
             if exit_code != 0:
                 sys.exit("Exiting...")
         return
     except TimeoutExpired:
         cmd_obj.kill()
         (out, error) = cmd_obj.communicate()
-        logging.error(f"Unable to run command:{cmd}: Out:{out} : Error:{error}")
-        sys.exit(f"Unable to run command:{cmd}: Out:{out} : Error:{error}")
+        msg = f"Timeout running command:\n{cmd}\nSTDOUT:\n{out}\nSTDERR:\n{error}"
+        logging.error(msg)
+        sys.exit(msg)
