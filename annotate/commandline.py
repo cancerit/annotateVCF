@@ -49,8 +49,6 @@ version = pkg_resources.require("annotateVcf")[0].version
 
 
 def main():
-    usage = "\n %prog [options] -vcf input.vcf [-filter -np -gt -g -m -lof -hl -o ]"
-
     optParser = argparse.ArgumentParser(prog='annotateVcf',
                                         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     optional = optParser._action_groups.pop()
@@ -90,14 +88,12 @@ def main():
     optional.add_argument("-q", "--quiet", action="store_false", dest="verbose", required=False, default=True)
 
     optParser._action_groups.append(optional)
-    if len(sys.argv) == 0:
-        optParser.print_help()
-        sys.exit(1)
     opts = optParser.parse_args()
     if not opts.vcf_file:
-        sys.exit('\nERROR Arguments required\n\tPlease run: annotateVcf --help\n')
-    print("Annotating VCF file")
+        optParser.print_help()
+        sys.exit('\nMissing ivcf/--vcf_file argument\n')
 
+    print("Annotating VCF file")
     # vars function returns __dict__ of Namespace instance
     my_formatter = formatter.IO_Formatter(**vars(opts))
     outdir_path = my_formatter.format(['outdir'])
