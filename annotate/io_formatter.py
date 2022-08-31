@@ -84,6 +84,8 @@ class IO_Formatter:
             return self._check_input
         elif input_type == 'vcf_filters':
             return self._get_filters
+        elif input_type == 'drv_type':
+            return self._get_driver_type
         else:
             raise ValueError(input_type)
 
@@ -94,7 +96,7 @@ class IO_Formatter:
         """
         input_status = check_inputs({'vcf_file': self.vcf_file, 'normal_panel': self.np_vcf,
                                      'mutations': self.muts_file, 'lof_genes': self.genes_file,
-                        'cancer_predisposition': self.cpv_file})
+                                     'cancer_predisposition': self.cpv_file})
         if input_status['vcf_file'] is None:
             sys.exit("Please provide input vcf file")
         return input_status
@@ -106,9 +108,16 @@ class IO_Formatter:
         """
           load parameters from json config file
         """
-        inc_filters = ['FORMAT', 'FILTER', 'INFO', 'INFO_FLAG_GERMLINE']
-        formatted_filters = parse_filters(self.json_file, 'include', inc_filters)
+        formatted_filters = parse_filters(self.json_file, 'include')
         return formatted_filters
+
+    def _get_driver_type(self):
+        """
+        get driver types from user provided json file
+        :return: driver type dictionary
+        """
+        driver_type = parse_filters(self.json_file, 'driver_type')
+        return driver_type
 
     def _get_outdir_path(self):
         """
@@ -118,8 +127,6 @@ class IO_Formatter:
         outputPath = self.outdir
         os.makedirs(outputPath, exist_ok=True)
         return outputPath
-
-    # generic functions ....
 
 
 def check_inputs(file_dict):
@@ -150,7 +157,7 @@ def get_file_metadata(full_file_name):
     return file_metadata
 
 
-def parse_filters(json_file, filter_type, filters):
+def parse_filters(json_file, filter_type):
     """
       load filtering parameters from json config file
     """
@@ -160,7 +167,7 @@ def parse_filters(json_file, filter_type, filters):
             sys.exit('Json configuration file must be provided')
         with open(json_file, 'r') as cfgfile:
             filter_cfg = json.load(cfgfile)
-            for filter in filters:
+            for filter in filter_cfg[filter_type]:
                 filter_param_dict[filter] = filter_cfg[filter_type][filter]
     except json.JSONDecodeError as jde:
         sys.exit('json error:{}'.format(jde.args[0]))

@@ -1,2 +1,2 @@
-##INFO=<ID=DRV,Number=., Type=String, Description="Driver Variant Class">
-##INFO=<ID=CPV,Number=., Type=String, Description="Cancer Predisposition Variant">
+##INFO=<ID=DRV,Number=., Type=String, Description="Driver Class (germline:cancer predisposition variant, somatic:somatic driver variant)">
+##INFO=<ID=CPV,Number=., Type=String, Description="Cancer Predisposition Variant(intermediate field, not used in annotated VCF)">

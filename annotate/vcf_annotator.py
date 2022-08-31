@@ -35,11 +35,15 @@ import os
 import re
 import io
 import copy
+import vcf
+
+from vcf import utils
+from collections import defaultdict
 from subprocess import Popen, PIPE, STDOUT, TimeoutExpired
 import pkg_resources
 
 '''
-  This code runs bcftools to annotates driver gene and variant sites
+  This code runs bcftools and pyvcf to annotates user provided driver gene and variant sites
 '''
 
 
@@ -61,6 +65,7 @@ class VcfAnnotator:
         self._set_input_vcf(self.input_data)
         self.drv_header = f.header_line
         self.merge_vcf_dict = {}
+        self.annotated_vcf_list = []
         self.keepTmp = f.keepTmp
         # run analysis
         self._runAnalysis(f)
@@ -78,6 +83,9 @@ class VcfAnnotator:
         self.format_filters = vcf_filter_params['FORMAT']
         self.filter_filters = vcf_filter_params['FILTER']
         self.flag_germline = vcf_filter_params['INFO_FLAG_GERMLINE']
+        drv_type = f.format(['drv_type'])
+        self.drv_type_dict = drv_type.get('drv_type', None)
+
         run_status = False
         a_type = ['normal_panel', 'mutations', 'lof_genes', 'cancer_predisposition']
 
@@ -161,9 +169,9 @@ class VcfAnnotator:
               f" -a {muts_file} -h {self.drv_header} " \
               f"-c CHROM,FROM,TO,INFO/DRV {self.vcf_path} " \
               f" | bcftools annotate  -i 'INFO/DRV!=\".\" && INFO/DRV[*]==INFO/VC' " \
-              f" | bgzip -c >{muts_outfile} && tabix -f -p vcf {muts_outfile}"
+              f" | bcftools sort |  bgzip -c >{muts_outfile} && tabix -f -p vcf {muts_outfile}"
         _run_command(cmd)
-        self.merge_vcf_dict['a'] = muts_outfile
+        self.annotated_vcf_list.append(muts_outfile)
 
     def annotate_lof_genes(self, genes_file):
         """
@@ -194,7 +202,9 @@ class VcfAnnotator:
                     # write matching LoF genes....
                     if gene.upper() in lof_gene_list:
                         lof_fh.write(line)
-        self.merge_vcf_dict['b'] = compress_vcf(lof_outfile)
+        # compress and store vcf
+        lof_outfile_gz = compress_vcf(lof_outfile, sort_it=True)
+        self.annotated_vcf_list.append(lof_outfile_gz)
 
     def annotate_cpv(self, cpv_file):
         """
@@ -210,12 +220,78 @@ class VcfAnnotator:
               f" -a {cpv_file} -h {self.drv_header} " \
               f"-c CHROM,FROM,TO,INFO/CPV {self.vcf_path} " \
               f" | bcftools annotate  -i 'INFO/CPV!=\".\" && INFO/CPV[*]==INFO/VC'  " \
-              f" | bgzip -c >{cpv_outfile} && tabix -f -p vcf {cpv_outfile}"
+              f" | bcftools sort | bgzip -c >{cpv_outfile} && tabix -f -p vcf {cpv_outfile}"
         _run_command(cmd)
-        self.merge_vcf_dict['c'] = cpv_outfile
+        self.annotated_vcf_list.append(cpv_outfile)
+
+    def _get_vcf_readers(self):
+        """
+         create vcf file readers for each annotated vcf file
+        :return: list of vcf file readers
+        """
+        vcf_readers = []
+        for my_vcf in self.annotated_vcf_list:
+            vcf_readers.append(vcf.Reader(filename=my_vcf))
+        return vcf_readers
+
+    def walk_and_write_vcf(self, vcf_readers, vcf_writer):
+        """
+        walk through each line of vcf files, matching records will be walked together
+        get_key paramter val will determine the matching of sorted VCF lines
+        vcf record e.g., 'chr17_7675139_C_[A]': {'somatic': <vcf.model._Record object at 0x7f82ca93ee50>,
+        'germline': <vcf.model._Record object at 0x7f82ca93ee80>}
+        :return collection as above
+        """
+        for record in walk_together_iterator(vcf_readers):
+            # print(f"{tuple(map(str,record))}")
+            drv_type = set()
+            vcf_line = ""
+            # filtered_record = list(filter(None, record))
+            # iterate through vcf record from each file...
+            for vcf_line in record:
+                # get driver type from info line ...
+                drv_type_info = self.get_driver_type(vcf_line)
+                drv_type.add(drv_type_info)
+            vcf_line = self.set_driver_type(vcf_line, drv_type)
+            vcf_writer.write_record(vcf_line)
+        vcf_writer.close()
+
+    def get_driver_type(self, vcf_line):
+        """
+        get driver type for given vcf line
+        :return:
+        """
+        for drv_type in self.drv_type_dict.keys():
+            if vcf_line.INFO.get(drv_type, None):
+                return drv_type
+
+    def set_driver_type(self, vcf_line, drv_type_info):
+        """
+        set driver type for  vcf line to False
+        :return:
+        """
+        for drv_type in self.drv_type_dict.keys():
+            if drv_type in drv_type_info:
+                vcf_line.INFO[drv_type] = True
+            else:
+                vcf_line.INFO[drv_type] = False
+        return vcf_line
 
     def concat_results(self):
+        """
+        process and concatenate the annotated vcf files...
+        :return:
+        """
+        annotated_vcfs = self.annotated_vcf_list
         concat_drv_out = self.outfile_name.format('_drv.vcf.gz')
+        # combine annotated vcf files...
+        vcf_readers = self._get_vcf_readers()
+        tmp_header = f"{self.outdir}/tmp_header_file"
+        (vcf_writer, combined_vcf) = _get_vcf_writer(annotated_vcfs[0], tmp_header)
+        self.walk_and_write_vcf(vcf_readers, vcf_writer)
+        combined_vcf_gz = compress_vcf(combined_vcf, sort_it=True)
+
+        self.merge_vcf_dict['a'] = combined_vcf_gz
         self.merge_vcf_dict['f'] = self.input_data['vcf_file']['path']
 
         vcf_files = ([self.merge_vcf_dict[myvcf] for myvcf in sorted(self.merge_vcf_dict.keys())])
@@ -256,13 +332,15 @@ def get_drv_gene_list(drv_genes):
     return lof_gene_list
 
 
-def compress_vcf(vcf):
+def compress_vcf(vcf, sort_it=None):
     """
     :param vcf:
     :return:
     """
     outfile = vcf + '.gz'
-    cmd = f"bgzip -c <{vcf} >{outfile} && tabix -f -p vcf {outfile}"
+    cmd = f"bgzip -c {vcf} >{outfile} && tabix -f -p vcf {outfile}"
+    if sort_it:
+        cmd = f"bcftools sort {vcf}| bgzip -c   >{outfile} && tabix -f -p vcf {outfile}"
     _run_command(cmd)
     return outfile
 
@@ -278,6 +356,58 @@ def create_dummy_genome(input_vcf, genome_loc):
     _run_command(cmd)
 
 
+def ace_tuple(string):
+    # Split on runs of digits, keeping the digit strings
+    digit_split = re.split(r'(\d+)', string)
+    return tuple(
+        # Convert odd indexed elements from strings to integers
+        int(ele) if i % 2 else ele for i, ele in enumerate(digit_split)
+    )
+
+
+def vcf_key(r):
+    return ace_tuple(r.CHROM), r.POS, r.REF, r.ALT
+
+
+def walk_together_iterator(arg_Readers):
+    """
+    re-written by James to replace utils.walk_together from pyvcf
+    iterator to return matching vcf lines based on the vcf_key
+    Input: vcf readrs
+    """
+
+    vcf_Readers = [*arg_Readers]
+    nexts = [None for _ in vcf_Readers]
+    rkeys = [*nexts]
+
+    while True:
+        # Fetch records into nexts[]
+        for i, reader in enumerate(vcf_Readers):
+            if reader is None:
+                continue
+            rec = nexts[i]
+            if rec is None:
+                try:
+                    nxt = next(reader)
+                    nexts[i] = nxt
+                    rkeys[i] = vcf_key(nxt)
+                except StopIteration:
+                    vcf_Readers[i] = None
+        # Exit loop when there are no records left
+        if not any(rec is not None for rec in nexts):
+            break
+        # Get the smallest key in the list
+        min_key = min(k for k in rkeys if k is not None)
+        # Return the records which match smallest key
+        matching = []
+        for i, key in enumerate(rkeys):
+            if key == min_key:
+                matching.append(nexts[i])
+                nexts[i] = None
+                rkeys[i] = None
+        yield matching
+
+
 def unheader_vcf(header_vcf, unheader_vcf):
     """
     This is used for testing purpose only...
@@ -288,6 +418,19 @@ def unheader_vcf(header_vcf, unheader_vcf):
     cmd = f"bcftools view -H {header_vcf} >{unheader_vcf}"
     _run_command(cmd)
     return unheader_vcf
+
+
+def _get_vcf_writer(my_vcf_file, tmp_header):
+    """
+    :param my_vcf_file:
+    :param my_vcf_header_file:
+    :return: my_vcf_header file
+    """
+    cmd = f"bcftools view -h {my_vcf_file} >{tmp_header}.vcf"
+    _run_command(cmd)
+    vcf_reader = vcf.Reader(filename=f"{tmp_header}.vcf")
+    vcf_writer = vcf.Writer(open(f"{tmp_header}_combined.vcf", 'w'), vcf_reader)
+    return vcf_writer, f"{tmp_header}_combined.vcf"
 
 
 def _run_command(cmd):
@@ -301,24 +444,21 @@ def _run_command(cmd):
         raise ValueError("Must supply at least one argument")
 
     try:
-        # To capture standard error in the result, use stderr=subprocess.STDOUT:
-        cmd_obj = Popen(cmd, stdin=None, stdout=PIPE, stderr=PIPE,
-                    shell=True, universal_newlines=True, bufsize=-1,
-                    close_fds=True, executable='/bin/bash')
+        # Need to set pipefail on shell to capture non-zero exit of intermediate commands in pipe
+        cmd_obj = Popen(['bash', '-o', 'pipefail', '-c', cmd], stdout=PIPE, stderr=PIPE, text=True)
         (out, error) = cmd_obj.communicate()
         exit_code = cmd_obj.returncode
-        if (exit_code == 0):
-            logging.debug(f"Command run successfully:\n{cmd}"
-                          f"OUT:{out} Error:{error} Exit:{exit_code}\n")
+        msg = f"\nSTDOUT:\n{out}\nSTDERR:\n{error}\nEXIT:{exit_code}"
+        if exit_code == 0:
+            logging.info(f"Command run successfully:\n{cmd}" + msg)
         else:
-            logging.info("Error: command exited with non zero exit \
-                          status, please check logging file for more details")
-            logging.error(f"OUT:{out}:Error:{error}:Exit:{exit_code}")
+            logging.error(msg)
             if exit_code != 0:
                 sys.exit("Exiting...")
         return
     except TimeoutExpired:
         cmd_obj.kill()
         (out, error) = cmd_obj.communicate()
-        logging.error(f"Unable to run command:{cmd}: Out:{out} : Error:{error}")
-        sys.exit(f"Unable to run command:{cmd}: Out:{out} : Error:{error}")
+        msg = f"Timeout running command:\n{cmd}\nSTDOUT:\n{out}\nSTDERR:\n{error}"
+        logging.error(msg)
+        sys.exit(msg)

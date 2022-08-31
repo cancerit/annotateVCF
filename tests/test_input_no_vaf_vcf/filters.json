@@ -9,7 +9,10 @@
       "INFO": "INFO/VC=\"stop_lost,start_lost,ess_splice,frameshift,nonsense\"",
       "INFO_FLAG_GERMLINE": "NPGL"
     },
-
+   "driver_type": {
+      "DRV": "somatic",
+      "CPV": "germline"
+    },
     "exclude": {
       "None": "NA"
     }

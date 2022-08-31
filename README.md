@@ -22,31 +22,34 @@ This project hosts scripts to annotate VCF files using user defined driver genes
 
 ## Design
 
-Uses [bcftools], [tabix] and [bgzip] in user's path , these are part of [htslib] or can be installed separately
+Uses [bcftools], [tabix] and [bgzip] in user's path, which are part of
+[htslib] and [bcftools], and can be installed separately.
 
 ## Tools
 
 `annotateVcf` has multiple command line options, listed with `annotateVcf --help`.
 
 ### annotateVcf
-Takes vcf file as input along with driver gene information, and optional unmatched normal panel vcf and outputs VCF with added  DRV INFO field.
+
+Takes vcf file as input along with driver gene information, and optional
+unmatched normal panel vcf and outputs VCF with added  DRV INFO field.
 
 Various exceptions can occur for malformed input files.
 
 ### inputFormat
 
- * ```input_vcf.gz```  snv or indel vcf file annotated using [VAGrENT]
- * ```normal_panel.vcf.gz```  normal panel to tag germline variants
- * ```lof_genes.txt ``` list of known loss of function [LoF] genes along with previous gene symbols ( to make sure all gene synonyms were matched with input vcf)
- * ```cpg_variants.tsv.gz``` list of variants in cancer predisposition genes to tag germline predisposition variants
- * ```filters.json``` filters to be applied during driver annotations ( see default file ```filters.josn``` in config  folder)
- * ```driver_mutations.tsv.gz``` tab separated driver mutations along with consequence type 
- * ```info.header``` vcf header INFO line showing driver and cancer predisposition annotations...
+ * `input_vcf.gz`  snv or indel vcf file annotated using [VAGrENT]
+ * `normal_panel.vcf.gz`  normal panel to tag germline variants
+ * `lof_genes.txt ` list of known loss of function [LoF] genes along with previous gene symbols (to make sure all gene synonyms were matched with input vcf)
+ * `cpg_variants.tsv.gz` list of variants in cancer predisposition genes to tag germline predisposition variants
+ * `filters.json` filters to be applied during driver annotations ( see default file `filters.josn` in config  folder)
+ * `driver_mutations.tsv.gz` tab separated driver mutations along with consequence type
+ * `info.header` vcf header INFO line showing driver and cancer predisposition annotations...
 
 ### outputFormat
 
- * ```<input>_drv.vcf.gz ``` output vcf file with DRV info field and consequence type if known, LoF in case annotated using LoF gene list, 
-CPV info field is added if variants in cancer predisposition genes are provided.
+ * `<input>_drv.vcf.gz` output vcf file with DRV info field and type of driver
+   instance (germline and/or somatic) overlapping with variant location.
 
 ## INSTALL
 Installing via `pip install`. Simply execute with the path to the compiled 'whl' found on the [release page][annotateVcf-releases]:
@@ -55,25 +58,26 @@ Installing via `pip install`. Simply execute with the path to the compiled 'whl'
 pip install annotateVcf.X.X.X-py3-none-any.whl
 ```
 
-Release `.whl` files are generated as part of the release process and can be found on the [release page][annotateVcf-releases]
+Release `.whl` files are generated as part of the release process and can be
+found on the [release page][annotateVcf-releases]
 
 ## Development environment
 
-This project uses git pre-commit hooks.  As these will execute on your system it
-is entirely up to you if you activate them.
+This project uses git pre-commit hooks.  As these will execute on your system
+it is entirely up to you if you activate them.
 
-If you want tests, coverage reports and lint-ing to automatically execute before
-a commit you can activate them by running:
+If you want tests, coverage reports and lint-ing to automatically execute
+before a commit you can activate them by running:
 
 ```
 git config core.hooksPath git-hooks
 ```
 
-Only a test failure will block a commit, lint-ing is not enforced (but please consider
-following the guidance).
+Only a test failure will block a commit, lint-ing is not enforced (but please
+consider following the guidance).
 
-You can run the same checks manually without a commit by executing the following
-in the base of the clone:
+You can run the same checks manually without a commit by executing the
+following in the base of the clone:
 
 ```bash
 ./run_tests.sh
@@ -102,6 +106,7 @@ source env/bin/activate # if not already in env
 pip install pytest
 pip install radon
 pip install pytest-cov
+pip install pyvcf3
 ```
 
 __Also see__ [Package Dependancies](#package-dependancies)
@@ -132,8 +137,9 @@ pip install --find-links=~/wheels annotateVcf
 <!--refs-->
  [htslib]: https://github.com/samtools/htslib
  [bcftools]: https://github.com/samtools/bcftools
+ [pyvcf3]: https://github.com/dridk/PyVCF3
  [tabix]: https://github.com/samtools/tabix
- [VAGrENT]: https://github.com/cancerit/VAGrENT 
+ [VAGrENT]: https://github.com/cancerit/VAGrENT
  [travis-master-badge]: https://travis-ci.org/cancerit/annotateVCF.svg?branch=master
  [travis-develop-badge]: https://travis-ci.org/cancerit/annotateVCF.svg?branch=develop
  [travis-repo]: https://travis-ci.org/cancerit/annotateVCF
