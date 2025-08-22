@@ -1,7 +1,7 @@
 attrs==21.2.0
 colorama==0.4.4
 coverage==6.1.1
-future==0.18.2
+future==1.0.0
 iniconfig==1.1.1
 mando==0.6.4
 packaging==21.2
